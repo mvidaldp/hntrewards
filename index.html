@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset=UTF-8 name="viewport" content="width=device-width, initial-scale=1">
+  <title>Helium (HNT) Rewards Checker</title>
+  <link rel="shortcut icon" href="javascript:;">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+    integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body style="visibility: hidden;">
+  <!--
+  Flash Of Unstyled Content (FOUC) fix: <script>0</script> at body's top and
+  domReady() trick.
+  Source:
+  https://primative.net/blog/how-to-get-rid-of-the-flash-of-unstyled-content
+  Warning message: "Layout was forced before the page was fully loaded. If
+  stylesheets are not yet loaded this may cause a flash of unstyled content."
+  -->
+  <script>0</script>
+  <div id="play-pause" title="Play/pause the background animation" class="fa-solid fa-pause"></div>
+  <div id="theme-toggler" title="Toggle light/dark theme" class="fa-solid fa-moon"></div>
+  <a href="javascript:;" title="Go to the About section">
+    <div id="about-btn" class="fa-solid fa-circle-info"></div>
+  </a>
+  <a href="javascript:;" title="Go back to the rewards checker">
+    <div id="totop-btn" style="visibility: hidden;" class="fa-solid fa-arrow-turn-up"></div>
+  </a>
+  <div id="container">
+    <div title="Donate HNT to keep this app alive (cover costs, keep it ad and annoyances free, etc.)">
+      <div class="row" style="display: flex;">
+        <div style="display: flex; flex-direction: column;">
+          <div class="fa-solid fa-circle-dollar-to-slot" style="padding-top: 6px;"></div>
+          <div class="fa-solid fa-hand-holding-dollar fa-flip-horizontal"
+            style="margin-top: auto; padding-bottom: 8px;">
+          </div>
+        </div>
+        <div>
+          <div style="text-align: center;"><b>DONATE</b></div>
+          <div class="QRcode-frame tooltip">
+            <span class="tooltiptext">Scan this QR code with the Helium app to send HNT</span>
+            <object type="image/svg+xml" data="QRcode.svg"></object>
+          </div>
+          <div style="text-align: center;"><b>PLEASE</b></div>
+        </div>
+        <div style="display: flex; flex-direction: column;">
+          <div class="fa-solid fa-solid fa-circle-dollar-to-slot" style="padding-top: 6px;"></div>
+          <div class="fa-solid fa-hand-holding-dollar" style="margin-top: auto; padding-bottom: 8px;""></div>
+        </div>
+      </div>
+    </div>
+    <h3><span title=" Helium (HNT) Rewards Checker" style="color: #474dff;">Helium</span> Rewards <span
+              style="color: #474dff;">Checker</span></h3>
+            <div id="hnt-price" style="color: #474dff;">HNT price: <span id="price">💰</span> <span
+                id="fiat-currency">USD</span>
+            </div>
+            <div>
+              <label for="fiat-select">Fiat currency</label>
+              <select id="fiat-select">
+                <option value="aud">AUD</option>
+                <option value="brl">BRL</option>
+                <option value="cad">CAD</option>
+                <option value="chf">CHF</option>
+                <option value="cny">CNY</option>
+                <option value="eur">EUR</option>
+                <option value="gbp">GBP</option>
+                <option value="hkd">HKD</option>
+                <option value="inr">INR</option>
+                <option value="jpy">JPY</option>
+                <option value="krw">KRW</option>
+                <option value="rub">RUB</option>
+                <option value="twd">TWD</option>
+                <option value="usd" selected>USD</option>
+              </select>
+            </div>
+            <!-- <br> -->
+            <form id="check-form">
+              <label id="miner-id-label" for="miner-name">Miner name</label>
+              <span class="tooltip">
+                <span id="no-miner-found" class="errortiptext">No miner was found with this name</span>
+                <input id="miner-name" type="text" placeholder="e.g. Happy Banana Woodpecker" maxlength="50"
+                  pattern="^[a-zA-Z]+( [a-zA-Z]+){2}$" autocomplete="on" autofocus required>
+              </span>
+              <div>
+                <label id="mining-time" for="period-select">⛏ Mined last</label>
+                <select id="period-select" dir="rtl">
+                  <option value="1h">1h</option>
+                  <option value="2h">2h</option>
+                  <option value="3h">3h</option>
+                  <option value="6h">6h</option>
+                  <option value="12h">12h</option>
+                  <option value="24h" selected>24h</option>
+                  <option value="7d">7d</option>
+                  <option value="14d">14d</option>
+                  <option value="30d">30d</option>
+                  <option value="60d">60d</option>
+                  <option value="90d">90d</option>
+                  <option value="180d">180d</option>
+                  <option value="1y">1y</option>
+                  <option value="max">max</option>
+                </select>
+              </div>
+              <div style="text-align: left;">
+                <input id="custom-check" type="checkbox">
+                <label id="custom-label" for="custom-check">Custom period: <span id="time-interval"
+                    style="visibility: hidden;">1 day</span></label>
+              </div>
+              <div id="start-block">
+                <label class="bigger-icons" title="Start datetime" for="date-start">🛫</label>
+                <input title="Start datetime" id="date-start" type="datetime-local" step="any" required disabled>
+                <label class="bigger-icons" title="Start datetime" for="date-start"
+                  style="transform: scale(-1, 1);">🛫</label>
+              </div>
+              <div id="end-block">
+                <label class="bigger-icons" title=" End datetime" for="date-end">🛬</label>
+                <input title="End datetime" id="date-end" type="datetime-local" step="any" required disabled>
+                <label class="bigger-icons" title=" End datetime" for="date-end"
+                  style="transform: scale(-1, 1);">🛬</label>
+              </div>
+              <br>
+              <div class="loader hidden"></div>
+              <button id="check" type="submit">Check</button>
+              <div id="loader" class="loader hidden"></div>
+            </form>
+            <table id="rewards-table" style="visibility: hidden;">
+              <tr>
+                <th>💰</th>
+                <th>Total</th>
+                <th>AVG / day</th>
+                <th>AVG / hour</th>
+              </tr>
+              <tr style="color:#474dff">
+                <td><b>HNT</b></td>
+                <td id="rewards">💰</td>
+                <td id="rewards-day">💰</td>
+                <td id="rewards-hour">💰</td>
+              </tr>
+              <tr>
+                <td id="rewards-fiat-lbl"><b>USD</b></td>
+                <td id="rewards-fiat">💰</td>
+                <td id="rewards-fiat-day">💰</td>
+                <td id="rewards-fiat-hour">💰</td>
+              </tr>
+            </table>
+            <table id="miner-table" style="visibility: hidden;">
+              <tr>
+                <th></th>
+                <th>Miner Info</th>
+                <th></th>
+              </tr>
+              <tr style="color:#474dff">
+                <td title="Miner address" id="id-icon">🎯</td>
+                <td><a id="miner-id" title="See the miner on the Helium explorer" target="_blank">🤔</a></td>
+                <td id="copy-clip" class="tooltip">
+                  <span class="tooltiptext" id="miner-tooltip">Copy miner's address to clipboard</span>📋
+                </td>
+              </tr>
+              <tr>
+                <td title="Owner address" id="icon-owner">👤</td>
+                <td><a id="owner-id" title="See the owner on the Helium explorer" target="_blank">🤔</a></td>
+                <td id="copy-clip-owner" class="tooltip">
+                  <span class="tooltiptext" id="owner-tooltip">Copy owner's address to clipboard</span>📋
+                </td>
+              </tr>
+              <tr title="Miner added date">
+                <td>🎂</td>
+                <td id="added-date">🤔</td>
+                <td>🎂</td>
+              </tr>
+              <tr title="Location (click to see it precisely on a map)">
+                <td>📍</td>
+                <td><a target="_blank" id="location" href="#"></a></td>
+                <td>📍</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div id="about-container">
+          <h3 title="About this app">
+            About <span title="HNT" style="color: #474dff;">Helium</span> Rewards <span
+              style="color: #474dff;">Checker</span>
+          </h3>
+          <div title="Donate HNT to keep this app alive (cover costs, keep it ad and annoyances free, etc.)">
+            <div class="row" style="display: flex;">
+              <div style="display: flex; flex-direction: column;">
+                <div class="fa-solid fa-circle-dollar-to-slot" style="padding-top: 6px;"></div>
+                <div class="fa-solid fa-hand-holding-dollar fa-flip-horizontal"
+                  style="margin-top: auto; padding-bottom: 8px;">
+                </div>
+              </div>
+              <div>
+                <div style="text-align: center;"><b>PLEASE</b></div>
+                <div class="QRcode-frame tooltip">
+                  <span class="tooltiptext">Scan this QR code with the Helium app to send HNT</span>
+                  <object type="image/svg+xml" data="QRcode.svg"></object>
+                </div>
+                <div style="text-align: center;"><b>DONATE</b></div>
+              </div>
+              <div style="display: flex; flex-direction: column;">
+                <div class="fa-solid fa-solid fa-circle-dollar-to-slot" style="padding-top: 6px;"></div>
+                <div class="fa-solid fa-hand-holding-dollar" style="margin-top: auto; padding-bottom: 8px;""></div>
+              </div>
+            </div>
+          </div>
+          <p>
+            <span title=" HNT" style="color: #474dff;">Helium</span> Rewards <span
+                    style="color: #474dff;">Checker</span>
+                  is an unofficial app built to check the HNT rewards of any miner of the <a target="_blank"
+                    href="https://www.helium.com/">Helium Blockchain</a> using a predefined time period or a custom one.
+                  It
+                  also allows you to see the value of the rewards in different fiat currencies and other relevant
+                  information (total rewards since a miner was added, date it was added, average rewards per day /
+                  hour within the selected period, miner's and owner's address, location, etc.).
+                  <p>Another reason that brought me to develop this tool is to provide realtime information about the
+                    HNT
+                    rewards. The <a target="_blank" href="https://explorer.helium.com/">Helium Explorer</a> and the
+                    Helium Hotspot App (to this
+                    date) are
+                    not only quite slow, they also do not give you realtime information (at least not the most
+                    up-to-date from Helium's blockchain).
+                  </p>
+                  <p>
+                    Essentially this webapp uses <a target="_blank"
+                      href="https://docs.helium.com/api/blockchain/introduction/">Helium's Blockchain API</a> to
+                    retrieve the
+                    desired information directly from <a target="_blank" href="https://www.helium.com/">Helium's
+                      Blockchain</a>,
+                    combined with the current <a target="_blank" href="https://www.coingecko.com/en/coins/helium">HNT
+                      fiat
+                      value</a> via <a target="_blank" href="https://www.coingecko.com/en/api/documentation">Coingecko's
+                      API</a>. Also, since you can access all the code (all non-ofuscated neither minimized frontend
+                    JavaScript running in your browser
+                    😉)
+                    feel free to revise it, send me
+                    suggestions
+                    or report bugs if you find any:
+                    <br>
+                    <span style="text-align: center; color: #52d8a5;">soacmaster[at]proton.me</span>
+                  </p>
+                  <p>
+                    Last but not least, keep in mind that this app is free (and it wants to stay as such: no ads, no
+                    annoyances). However, the effort, the hosting, the
+                    domain, the
+                    maintenance, etc., are not. So, if you think this app is useful, please use the QR code to
+                    donate HNT to support it.
+                  </p>
+                </div>
+                <canvas class=" background"></canvas>
+                <!-- <script src="particles.min.js"></script> -->
+                <script type="module" src="script.js"></script>
+</body>
+
+</html>
