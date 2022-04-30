@@ -2,13 +2,22 @@
 <html lang="en">
 
 <head>
-  <meta charset=UTF-8 name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset=UTF-8 name="viewport"
+    content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi">
   <title>Helium (HNT) Rewards Checker</title>
   <link rel="shortcut icon" href="javascript:;">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
-    integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
-    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://kit.fontawesome.com/6fe454c34b.js" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="style.css">
+  <script type="module" src="script.min.js"></script>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BK9BPH2W48"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag () { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-BK9BPH2W48');
+  </script>
 </head>
 
 <body style="visibility: hidden;">
@@ -21,13 +30,12 @@
   stylesheets are not yet loaded this may cause a flash of unstyled content."
   -->
   <script>0</script>
-  <div id="play-pause" title="Play/pause the background animation" class="fa-solid fa-pause"></div>
-  <div id="theme-toggler" title="Toggle light/dark theme" class="fa-solid fa-moon"></div>
   <a href="javascript:;" title="Go to the About section">
     <div id="about-btn" class="fa-solid fa-circle-info"></div>
   </a>
+  <div id="theme-toggler" title="Toggle light/dark theme" class="fa-solid fa-moon"></div>
   <a href="javascript:;" title="Go back to the rewards checker">
-    <div id="totop-btn" style="visibility: hidden;" class="fa-solid fa-arrow-turn-up"></div>
+    <div id="totop-btn" class="fa-solid fa-arrow-turn-up"></div>
   </a>
   <div id="container">
     <div title="Donate HNT to keep this app alive (cover costs, keep it ad and annoyances free, etc.)">
@@ -42,7 +50,7 @@
           <div style="text-align: center;"><b>DONATE</b></div>
           <div class="QRcode-frame tooltip">
             <span class="tooltiptext">Scan this QR code with the Helium app to send HNT</span>
-            <object type="image/svg+xml" data="QRcode.svg"></object>
+            <div id="qrcode"></div>
           </div>
           <div style="text-align: center;"><b>PLEASE</b></div>
         </div>
@@ -109,18 +117,15 @@
                     style="visibility: hidden;">1 day</span></label>
               </div>
               <div id="start-block">
-                <label class="bigger-icons" title="Start datetime" for="date-start">🛫</label>
+                <label class="dates-icons" title="Start datetime" for="date-start">🛫</label>
                 <input title="Start datetime" id="date-start" type="datetime-local" step="any" required disabled>
-                <label class="bigger-icons" title="Start datetime" for="date-start"
-                  style="transform: scale(-1, 1);">🛫</label>
+                <label class="dates-icons mirrored" title="Start datetime" for="date-start">🛫</label>
               </div>
               <div id="end-block">
-                <label class="bigger-icons" title=" End datetime" for="date-end">🛬</label>
+                <label class="dates-icons" title=" End datetime" for="date-end">🛬</label>
                 <input title="End datetime" id="date-end" type="datetime-local" step="any" required disabled>
-                <label class="bigger-icons" title=" End datetime" for="date-end"
-                  style="transform: scale(-1, 1);">🛬</label>
+                <label class="dates-icons mirrored" title=" End datetime" for="date-end">🛬</label>
               </div>
-              <br>
               <div class="loader hidden"></div>
               <button id="check" type="submit">Check</button>
               <div id="loader" class="loader hidden"></div>
@@ -147,9 +152,9 @@
             </table>
             <table id="miner-table" style="visibility: hidden;">
               <tr>
-                <th></th>
+                <th id="info-th-left">ᯤ</th>
                 <th>Miner Info</th>
-                <th></th>
+                <th id="info-th-right">ᯤ</th>
               </tr>
               <tr style="color:#474dff">
                 <td title="Miner address" id="id-icon">🎯</td>
@@ -175,6 +180,11 @@
                 <td><a target="_blank" id="location" href="#"></a></td>
                 <td>📍</td>
               </tr>
+              <tr title="Transmit scale">
+                <td>📏</td>
+                <td id="scale"></td>
+                <td>📏</td>
+              </tr>
             </table>
           </div>
         </div>
@@ -192,12 +202,12 @@
                 </div>
               </div>
               <div>
-                <div style="text-align: center;"><b>PLEASE</b></div>
+                <div style="text-align: center;"><b>DONATE</b></div>
                 <div class="QRcode-frame tooltip">
                   <span class="tooltiptext">Scan this QR code with the Helium app to send HNT</span>
-                  <object type="image/svg+xml" data="QRcode.svg"></object>
+                  <div id="qrcode"></div>
                 </div>
-                <div style="text-align: center;"><b>DONATE</b></div>
+                <div style="text-align: center;"><b>PLEASE</b></div>
               </div>
               <div style="display: flex; flex-direction: column;">
                 <div class="fa-solid fa-solid fa-circle-dollar-to-slot" style="padding-top: 6px;"></div>
@@ -208,7 +218,7 @@
           <p>
             <span title=" HNT" style="color: #474dff;">Helium</span> Rewards <span
                     style="color: #474dff;">Checker</span>
-                  is an unofficial app built to check the HNT rewards of any miner of the <a target="_blank"
+                  is a Helium community app built to check the HNT rewards of any miner of the <a target="_blank"
                     href="https://www.helium.com/">Helium Blockchain</a> using a predefined time period or a custom one.
                   It
                   also allows you to see the value of the rewards in different fiat currencies and other relevant
@@ -219,19 +229,19 @@
                     rewards. The <a target="_blank" href="https://explorer.helium.com/">Helium Explorer</a> and the
                     Helium Hotspot App (to this
                     date) are
-                    not only quite slow, they also do not give you realtime information (at least not the most
-                    up-to-date from Helium's blockchain).
+                    not only quite slow. They also do not give you realtime information (at least not the most
+                    up-to-date from its blockchain).
                   </p>
                   <p>
                     Essentially this webapp uses <a target="_blank"
                       href="https://docs.helium.com/api/blockchain/introduction/">Helium's Blockchain API</a> to
                     retrieve the
-                    desired information directly from <a target="_blank" href="https://www.helium.com/">Helium's
+                    desired information directly from the <a target="_blank" href="https://www.helium.com/">Helium's
                       Blockchain</a>,
                     combined with the current <a target="_blank" href="https://www.coingecko.com/en/coins/helium">HNT
                       fiat
                       value</a> via <a target="_blank" href="https://www.coingecko.com/en/api/documentation">Coingecko's
-                      API</a>. In case you have any suggestions or found any bugs, please write me:
+                      API</a>. In case you have any suggestions or find any bugs, please write me at:
                     <br>
                     <span style="text-align: center; color: #52d8a5;">soacmaster[at]proton.me</span>
                   </p>
@@ -243,9 +253,6 @@
                     donate HNT to support it.
                   </p>
                 </div>
-                <canvas class=" background"></canvas>
-                <!-- <script src="particles.min.js"></script> -->
-                <script type="module" src="script.min.js"></script>
 </body>
 
 </html>

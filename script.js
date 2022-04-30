@@ -3,12 +3,13 @@
  * @author m4573Rm4c0 <soacmaster@proton.me>
  */
 // TODO:
-// - document functions
-// - minify javascript
-// - upload into github and hosting
+// - make automatic dark/light mode following system settings (works via CSS, javascript auto/manual handling needed):
+// https://stackoverflow.com/questions/56393880/how-do-i-detect-dark-mode-using-javascript
+// - Handle multiple miners with same name (show pop up and select one) => use dialog element
 // - add google analytics tracking
 // - share it in reddit. discord and telegram
 // Future:
+// - use purely svg for the icons (awesome or heroicons)
 // - Simplify and organize promises chain properly:
 //  - Check when synchronous code is needed and when not.
 //  - Return Promise (async) or Throw error (sync) accordingly
@@ -16,21 +17,17 @@
 //    .then(stepTwo, handleErrorOne)
 //    .then(stepThree, handleErrorTwo)
 //    .then(null, handleErrorThree)
-// - Move all styles to style.css, simplify them
+// - document functions
+// - Move all styles to style.css, simplify them (also minimize css)
 // - Make that updating properties, the correpondant element get updated automatically: https://medium.com/@suvechhyabanerjee92/watch-an-object-for-changes-in-vanilla-javascript-a5f1322a4ca5
-// - Handle multiple miners with same name (show pop up and select one)
-// - Use TSparticles (https://particles.js.org/docs/index.html#Official-components-for-some-of-the-most-used-frameworks)
 // - Show HNT's supply
 // - Show total miners
 // - Show AVG rewards whole network (total miners / rewards)
 // - Show Witnesses and Witnessed last 5 days (time interval not possible)
 // - Show challenges
 // - Show total hostspots around a certain radius (Km)
-// - Show transmit scale and online
 // - Show AVG challenges / miner last 24 hours
 // - organize and simplify code
-
-import { Particles } from './particles.min.js'
 
 // Helper function
 const domReady = (cb) => {
@@ -158,25 +155,9 @@ period.eDate = period.eDate.toISOString().split('.')[0]
 period.sDate = period.sDate.toISOString().split('.')[0]
 
 // event listeners
-let particles
 
-window.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
   checkPrice()
-  particles = Particles.init({
-    // color: '#474dff',
-    color: '#27cf8f',
-    connectParticles: true,
-    maxParticles: 150,
-    minDistance: 100,
-    selector: '.background',
-    sizeVariations: 15,
-    speed: 0.075
-  })
-})
-
-els.playPause.addEventListener('click', () => {
-  els.playPause.classList.contains('fa-play') ? particles.resumeAnimation() : particles.pauseAnimation()
-  els.playPause.classList.toggle('fa-play')
 })
 
 els.themeToggler.addEventListener('click', () => {
@@ -184,20 +165,19 @@ els.themeToggler.addEventListener('click', () => {
   els.themeToggler.classList.toggle('fa-sun')
 })
 
+document.addEventListener('scroll', () => scrollFunction())
 window.addEventListener('scroll', () => scrollFunction())
 
 /**
  *
  */
 function scrollFunction () {
-  if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+  if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20 || window.pageYOffset > 20 || window.scrollY > 20) {
     els.totopBtn.style.visibility = 'visible'
     els.aboutBtn.style.visibility = 'hidden'
-    els.playPause.style.visibility = 'hidden'
   } else {
     els.totopBtn.style.visibility = 'hidden'
     els.aboutBtn.style.visibility = 'visible'
-    els.playPause.style.visibility = 'visible'
   }
 }
 
@@ -434,6 +414,17 @@ function getId (data) {
     miner.lng = data.data[0].lng
     miner.scale = data.data[0].reward_scale
     miner.online = data.data[0].status.online === 'online'
+    if (miner.online) {
+      els.infoThLeft.style.color = 'green'
+      els.infoThRight.style.color = 'green'
+      els.infoThLeft.title = 'Online'
+      els.infoThRight.title = 'Online'
+    } else {
+      els.infoThLeft.style.color = 'red'
+      els.infoThRight.style.color = 'red'
+      els.infoThLeft.title = 'Offline'
+      els.infoThRight.title = 'Offline'
+    }
     els.minerId.setAttribute('data-id', miner.id)
     els.minerId.setAttribute('href', `${explorerURL}/hotspots/${miner.id}`)
     els.ownerId.setAttribute('data-id', miner.owner)
@@ -448,6 +439,7 @@ function getId (data) {
     els.location.innerHTML = miner.location
     els.location.setAttribute('href', `${gMapsURL}${miner.lat},${miner.lng}`)
     els.ownerId.innerHTML = hiddenOwner
+    els.scale.innerHTML = miner.scale
     console.log('Miner found:')
     console.table(miner)
     return Promise.resolve(miner.id)
