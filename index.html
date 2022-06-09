@@ -4,6 +4,8 @@
 <head>
   <meta charset=UTF-8 name="viewport"
     content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi">
+  <meta name="description"
+    content="Helium (HNT) Rewards Checker is a Helium community app built to check the HNT rewards of any miner of the Helium Blockchain using a predefined time period or a custom one.">
   <title>Helium (HNT) Rewards Checker</title>
   <link rel="shortcut icon" href="javascript:;">
   <script src="https://kit.fontawesome.com/6fe454c34b.js" crossorigin="anonymous"></script>
@@ -38,6 +40,9 @@
     <div id="totop-btn" class="fa-solid fa-arrow-turn-up"></div>
   </a>
   <div id="container">
+    <h3><span title=" Helium (HNT) Rewards Checker" style="color: #474dff;">Helium</span> Rewards <span
+        style="color: #474dff;">Checker</span>
+    </h3>
     <div title="Donate HNT to keep this app alive (cover costs, keep it ad and annoyances free, etc.)">
       <div class="row" style="display: flex;">
         <div style="display: flex; flex-direction: column;">
@@ -60,9 +65,8 @@
         </div>
       </div>
     </div>
-    <h3><span title=" Helium (HNT) Rewards Checker" style="color: #474dff;">Helium</span> Rewards <span
-              style="color: #474dff;">Checker</span></h3>
-            <div id="hnt-price" style="color: #474dff;">HNT price: <span id="price">💰</span> <span
+    <form id=" currency-form">
+            <div id=" hnt-price" style="color: #474dff;">HNT price: <span id="price">💰</span> <span
                 id="fiat-currency">USD</span>
             </div>
             <div>
@@ -76,15 +80,21 @@
                 <option value="eur">EUR</option>
                 <option value="gbp">GBP</option>
                 <option value="hkd">HKD</option>
+                <option value="idr">IDR</option>
+                <option value="ils">ILS</option>
                 <option value="inr">INR</option>
                 <option value="jpy">JPY</option>
                 <option value="krw">KRW</option>
+                <option value="mxn">MXN</option>
                 <option value="rub">RUB</option>
+                <option value="sar">SAR</option>
+                <option value="sgd">SGD</option>
+                <option value="thb">THB</option>
                 <option value="twd">TWD</option>
                 <option value="usd" selected>USD</option>
               </select>
             </div>
-            <!-- <br> -->
+            </form>
             <form id="check-form">
               <label id="miner-id-label" for="miner-name">Miner name</label>
               <span class="tooltip">
@@ -93,7 +103,8 @@
                   pattern="^[a-zA-Z]+( [a-zA-Z]+){2}$" autocomplete="on" autofocus required>
               </span>
               <div>
-                <label id="mining-time" for="period-select">⛏ Mined last</label>
+                <label id="mining-time" for="period-select"><i style="transform: scale(-1, 1);"
+                    class="fa-solid fa-trowel"></i>Mined last</label>
                 <select id="period-select" dir="rtl">
                   <option value="1h">1h</option>
                   <option value="2h">2h</option>
@@ -101,6 +112,8 @@
                   <option value="6h">6h</option>
                   <option value="12h">12h</option>
                   <option value="24h" selected>24h</option>
+                  <option value="2d">2d</option>
+                  <option value="3d">3d</option>
                   <option value="7d">7d</option>
                   <option value="14d">14d</option>
                   <option value="30d">30d</option>
@@ -108,6 +121,7 @@
                   <option value="90d">90d</option>
                   <option value="180d">180d</option>
                   <option value="1y">1y</option>
+                  <option value="2y">2y</option>
                   <option value="max">max</option>
                 </select>
               </div>
@@ -117,14 +131,18 @@
                     style="visibility: hidden;">1 day</span></label>
               </div>
               <div id="start-block">
-                <label class="dates-icons" title="Start datetime" for="date-start">🛫</label>
+                <label class="dates-icons" title="Start datetime" for="date-start"><i
+                    class="fa-solid fa-plane-departure"></i></label>
                 <input title="Start datetime" id="date-start" type="datetime-local" step="any" required disabled>
-                <label class="dates-icons mirrored" title="Start datetime" for="date-start">🛫</label>
+                <label class="dates-icons mirrored" title="Start datetime" for="date-start"><i
+                    class="fa-solid fa-plane-departure"></i></label>
               </div>
               <div id="end-block">
-                <label class="dates-icons" title=" End datetime" for="date-end">🛬</label>
+                <label class="dates-icons" title=" End datetime" for="date-end"><i
+                    class="fa-solid fa-plane-arrival"></i></label>
                 <input title="End datetime" id="date-end" type="datetime-local" step="any" required disabled>
-                <label class="dates-icons mirrored" title=" End datetime" for="date-end">🛬</label>
+                <label class="dates-icons mirrored" title=" End datetime" for="date-end"><i
+                    class="fa-solid fa-plane-arrival"></i></label>
               </div>
               <div class="loader hidden"></div>
               <button id="check" type="submit">Check</button>
@@ -132,58 +150,60 @@
             </form>
             <table id="rewards-table" style="visibility: hidden;">
               <tr>
-                <th>💰</th>
+                <th><i class="fa-solid fa-sack-dollar"></i></th>
                 <th>Total</th>
-                <th>AVG / day</th>
-                <th>AVG / hour</th>
+                <th>Per day</th>
+                <th>Per hour</th>
               </tr>
               <tr style="color:#474dff">
                 <td><b>HNT</b></td>
-                <td id="rewards">💰</td>
-                <td id="rewards-day">💰</td>
-                <td id="rewards-hour">💰</td>
+                <td id="rewards"></td>
+                <td id="rewards-day"></td>
+                <td id="rewards-hour"></td>
               </tr>
               <tr>
                 <td id="rewards-fiat-lbl"><b>USD</b></td>
-                <td id="rewards-fiat">💰</td>
-                <td id="rewards-fiat-day">💰</td>
-                <td id="rewards-fiat-hour">💰</td>
+                <td id="rewards-fiat"></td>
+                <td id="rewards-fiat-day"></td>
+                <td id="rewards-fiat-hour"></td>
               </tr>
             </table>
             <table id="miner-table" style="visibility: hidden;">
               <tr>
-                <th id="info-th-left">ᯤ</th>
+                <th id="info-th-left"><i class="fa-solid fa-tower-broadcast"></i></th>
                 <th>Miner Info</th>
-                <th id="info-th-right">ᯤ</th>
+                <th id="info-th-right"><i class="fa-solid fa-tower-broadcast"></i> </th>
               </tr>
-              <tr style="color:#474dff">
-                <td title="Miner address" id="id-icon">🎯</td>
+              <tr>
+                <td title="Miner's address" id="id-icon"><i class="fa-solid fa-at"></i></td>
                 <td><a id="miner-id" title="See the miner on the Helium explorer" target="_blank">🤔</a></td>
                 <td id="copy-clip" class="tooltip">
-                  <span class="tooltiptext" id="miner-tooltip">Copy miner's address to clipboard</span>📋
+                  <span class="tooltiptext" id="miner-tooltip">Copy address to clipboard</span>
+                  <i class="fa-solid fa-clipboard-list"></i>
                 </td>
               </tr>
               <tr>
-                <td title="Owner address" id="icon-owner">👤</td>
+                <td title="Owner's address" id="icon-owner"><i class="fa-solid fa-user"></i></td>
                 <td><a id="owner-id" title="See the owner on the Helium explorer" target="_blank">🤔</a></td>
                 <td id="copy-clip-owner" class="tooltip">
-                  <span class="tooltiptext" id="owner-tooltip">Copy owner's address to clipboard</span>📋
+                  <span class="tooltiptext" id="owner-tooltip">Copy address to clipboard</span>
+                  <i class="fa-solid fa-clipboard-list"></i>
                 </td>
               </tr>
-              <tr title="Miner added date">
-                <td>🎂</td>
+              <tr title="Added date">
+                <td><i class="fa-solid fa-cake-candles"></i></td>
                 <td id="added-date">🤔</td>
-                <td>🎂</td>
+                <td><i class="fa-solid fa-cake-candles"></i></td>
               </tr>
-              <tr title="Location (click to see it precisely on a map)">
-                <td>📍</td>
+              <tr title="Location">
+                <td><i class="fa-solid fa-location-dot"></i></td>
                 <td><a target="_blank" id="location" href="#"></a></td>
-                <td>📍</td>
+                <td><i class="fa-solid fa-location-dot"></i></td>
               </tr>
               <tr title="Transmit scale">
-                <td>📏</td>
+                <td><i class="fa-solid fa-scale-balanced"></i></td>
                 <td id="scale"></td>
-                <td>📏</td>
+                <td><i class="fa-solid fa-scale-balanced"></i></td>
               </tr>
             </table>
           </div>
@@ -202,12 +222,12 @@
                 </div>
               </div>
               <div>
-                <div style="text-align: center;"><b>DONATE</b></div>
+                <div style="text-align: center;"><b>PLEASE</b></div>
                 <div class="QRcode-frame tooltip">
                   <span class="tooltiptext">Scan this QR code with the Helium app to send HNT</span>
                   <div id="qrcode"></div>
                 </div>
-                <div style="text-align: center;"><b>PLEASE</b></div>
+                <div style="text-align: center;"><b>DONATE</b></div>
               </div>
               <div style="display: flex; flex-direction: column;">
                 <div class="fa-solid fa-solid fa-circle-dollar-to-slot" style="padding-top: 6px;"></div>
