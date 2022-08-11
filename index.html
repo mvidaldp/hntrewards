@@ -5,8 +5,9 @@
   <meta charset=UTF-8 name="viewport"
     content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi">
   <meta name="description"
-    content="Helium (HNT) Rewards Checker is a Helium community app built to check the HNT rewards of any miner of the Helium Blockchain using a predefined time period or a custom one.">
+    content="Helium community app built to check the HNT rewards of any miner of the Helium Blockchain using a predefined time period or a custom one.">
   <title>Helium (HNT) Rewards Checker</title>
+  <link rel="canonical" href="https://hntrewards.xyz/" />
   <link rel="shortcut icon" href="javascript:;">
   <script src="https://kit.fontawesome.com/6fe454c34b.js" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="style.css">
@@ -17,7 +18,6 @@
     window.dataLayer = window.dataLayer || [];
     function gtag () { dataLayer.push(arguments); }
     gtag('js', new Date());
-
     gtag('config', 'G-BK9BPH2W48');
   </script>
 </head>
@@ -40,9 +40,11 @@
     <div id="totop-btn" class="fa-solid fa-arrow-turn-up"></div>
   </a>
   <div id="container">
-    <h3><span title=" Helium (HNT) Rewards Checker" style="color: #474dff;">Helium</span> Rewards <span
-        style="color: #474dff;">Checker</span>
-    </h3>
+    <h1>
+      <h3><span title=" Helium (HNT) Rewards Checker" style="color: #474dff;">Helium</span> Rewards <span
+          style="color: #474dff;">Checker</span>
+      </h3>
+    </h1>
     <div title="Donate HNT to keep this app alive (cover costs, keep it ad and annoyances free, etc.)">
       <div class="row" style="display: flex;">
         <div style="display: flex; flex-direction: column;">
@@ -65,13 +67,13 @@
         </div>
       </div>
     </div>
-    <form id=" currency-form">
+    <form id='currency-form' autocomplete=" off">
             <div id=" hnt-price" style="color: #474dff;">HNT price: <span id="price">💰</span> <span
                 id="fiat-currency">USD</span>
             </div>
             <div>
               <label for="fiat-select">Fiat currency</label>
-              <select id="fiat-select">
+              <select id="fiat-select" autocomplete="off">
                 <option value="aud">AUD</option>
                 <option value="brl">BRL</option>
                 <option value="cad">CAD</option>
@@ -95,7 +97,7 @@
               </select>
             </div>
             </form>
-            <form id="check-form">
+            <form id="check-form" autocomplete="on">
               <label id="miner-id-label" for="miner-name">Miner name</label>
               <span class="tooltip">
                 <span id="no-miner-found" class="errortiptext">No miner was found with this name</span>
@@ -105,7 +107,7 @@
               <div>
                 <label id="mining-time" for="period-select"><i style="transform: scale(-1, 1);"
                     class="fa-solid fa-trowel"></i>Mined last</label>
-                <select id="period-select" dir="rtl">
+                <select id="period-select" dir="rtl" autocomplete="off">
                   <option value="1h">1h</option>
                   <option value="2h">2h</option>
                   <option value="3h">3h</option>
@@ -176,7 +178,8 @@
               </tr>
               <tr>
                 <td title="Miner's address" id="id-icon"><i class="fa-solid fa-at"></i></td>
-                <td><a id="miner-id" title="See the miner on the Helium explorer" target="_blank">🤔</a></td>
+                <td><a id="miner-id" title="See the miner on the Helium explorer" target="_blank" rel="noopener">🤔</a>
+                </td>
                 <td id="copy-clip" class="tooltip">
                   <span class="tooltiptext" id="miner-tooltip">Copy address to clipboard</span>
                   <i class="fa-solid fa-clipboard-list"></i>
@@ -184,7 +187,8 @@
               </tr>
               <tr>
                 <td title="Owner's address" id="icon-owner"><i class="fa-solid fa-user"></i></td>
-                <td><a id="owner-id" title="See the owner on the Helium explorer" target="_blank">🤔</a></td>
+                <td><a id="owner-id" title="See the owner on the Helium explorer" target="_blank" rel="noopener">🤔</a>
+                </td>
                 <td id="copy-clip-owner" class="tooltip">
                   <span class="tooltiptext" id="owner-tooltip">Copy address to clipboard</span>
                   <i class="fa-solid fa-clipboard-list"></i>
@@ -197,7 +201,7 @@
               </tr>
               <tr title="Location">
                 <td><i class="fa-solid fa-location-dot"></i></td>
-                <td><a target="_blank" id="location" href="#"></a></td>
+                <td><a target="_blank" id="location" href="#" rel="noopener"></a></td>
                 <td><i class="fa-solid fa-location-dot"></i></td>
               </tr>
               <tr title="Transmit scale">
@@ -239,37 +243,44 @@
             <span title=" HNT" style="color: #474dff;">Helium</span> Rewards <span
                     style="color: #474dff;">Checker</span>
                   is a Helium community app built to check the HNT rewards of any miner of the <a target="_blank"
-                    href="https://www.helium.com/">Helium Blockchain</a> using a predefined time period or a custom one.
+                    rel="noopener" href="https://www.helium.com/">Helium Blockchain</a> using a predefined time period
+                  or a custom one.
                   It
                   also allows you to see the value of the rewards in different fiat currencies and other relevant
                   information (total rewards since a miner was added, date it was added, average rewards per day /
                   hour within the selected period, miner's and owner's address, location, etc.).
                   <p>Another reason that brought me to develop this tool is to provide realtime information about the
                     HNT
-                    rewards. The <a target="_blank" href="https://explorer.helium.com/">Helium Explorer</a> and the
+                    rewards. The <a target="_blank" rel="noopener" href="https://explorer.helium.com/">Helium
+                      Explorer</a> and the
                     Helium Hotspot App (to this
                     date) are
                     not only quite slow. They also do not give you realtime information (at least not the most
                     up-to-date from its blockchain).
                   </p>
                   <p>
-                    Essentially this webapp uses <a target="_blank"
+                    Essentially this webapp uses <a target="_blank" rel="noopener"
                       href="https://docs.helium.com/api/blockchain/introduction/">Helium's Blockchain API</a> to
                     retrieve the
-                    desired information directly from the <a target="_blank" href="https://www.helium.com/">Helium's
+                    desired information directly from the <a target="_blank" rel="noopener"
+                      href="https://www.helium.com/">Helium's
                       Blockchain</a>,
-                    combined with the current <a target="_blank" href="https://www.coingecko.com/en/coins/helium">HNT
+                    combined with the current <a target="_blank" rel="noopener"
+                      href="https://www.coingecko.com/en/coins/helium">HNT
                       fiat
-                      value</a> via <a target="_blank" href="https://www.coingecko.com/en/api/documentation">Coingecko's
+                      value</a> via <a target="_blank" rel="noopener"
+                      href="https://www.coingecko.com/en/api/documentation">Coingecko's
                       API</a>. In case you have any suggestions or find any bugs, please write me at:
                     <br>
                     <span style="text-align: center; color: #52d8a5;">soacmaster[at]proton.me</span>
                   </p>
                   <p>
                     Last but not least, keep in mind that this app is free (and it wants to stay as such: no ads, no
-                    annoyances). However, the effort, the hosting, the
-                    domain, the
-                    maintenance, etc., are not. So, if you think this app is useful, please use the QR code to
+                    annoyances). Currently this site is having around 1000 unique visits a month. If on average every
+                    user would donate at least 0.1 HNT, I could not only cover the hosting, domain, developing and
+                    mantaining
+                    costs, but it would also allow me to improve it a lot and develop an Android and iOS app out of it.
+                    So, if you think this app is useful, please use the QR code to
                     donate HNT to support it.
                   </p>
                 </div>

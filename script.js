@@ -3,11 +3,12 @@
  * @author m4573Rm4c0 <soacmaster@proton.me>
  */
 // TODO:
-// - Update HNT price at each check
 // - make automatic dark/light mode following system settings (works via CSS, javascript auto/manual handling needed):
 // https://stackoverflow.com/questions/56393880/how-do-i-detect-dark-mode-using-javascript
-// - Handle multiple miners with same name (show pop up and select one) => use dialog element
-// - Include it in Helium's community tools, share it in reddit. discord and telegram
+// - Handle multiple miners with same name (show pop up and select one) => use dialog element:
+// https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog
+// - Improve SEO stuff (shorten site description, adapt font size for mobile, etc.)
+// - Share it in reddit, discord, telegram, and medium (create post)
 // Future:
 // - Simplify and organize promises chain properly:
 //  - Check when synchronous code is needed and when not.
@@ -21,12 +22,14 @@
 // - Make that updating properties, the correpondant element get updated automatically:
 // https://medium.com/@suvechhyabanerjee92/watch-an-object-for-changes-in-vanilla-javascript-a5f1322a4ca5
 // - Show HNT's supply
-// - Show total miners
-// - Show AVG rewards whole network (total miners / rewards)
 // - Show Witnesses and Witnessed last 5 days (time interval not possible)
 // - Show challenges
 // - Show total hostspots around a certain radius (Km)
 // - Show AVG challenges / miner last 24 hours
+// - Show graph of selected period
+// - Extra (whole network):
+//    - Show total miners
+//    - Show AVG rewards whole network (total miners / rewards)
 // - organize and simplify code
 
 // Helper function
@@ -549,6 +552,7 @@ async function getRewards(minerId) {
   const rewardsURL = `${baseURL}/${rewardsQuery}`;
   // const selected = els.periodSelect.value
   if (minerId !== undefined) {
+    checkPrice();
     await fetch(rewardsURL)
       .then(getResponse)
       .then(showRewards)
