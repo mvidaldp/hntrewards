@@ -175,6 +175,9 @@ if (
 ) {
   document.body.classList.toggle("dark");
   els.themeToggler.classList.toggle("fa-sun");
+  els.check.classList.toggle("dark");
+  els.fiatSelect.classList.toggle("dark");
+  els.periodSelect.classList.toggle("dark");
 }
 
 // event listeners
@@ -186,6 +189,9 @@ document.addEventListener("DOMContentLoaded", () => {
 els.themeToggler.addEventListener("click", () => {
   document.body.classList.toggle("dark");
   els.themeToggler.classList.toggle("fa-sun");
+  els.check.classList.toggle("dark");
+  els.fiatSelect.classList.toggle("dark");
+  els.periodSelect.classList.toggle("dark");
 });
 
 document.addEventListener("scroll", () => scrollFunction());

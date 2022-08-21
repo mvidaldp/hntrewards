@@ -106,7 +106,7 @@ a:hover,
 a:active,
 a:visited,
 a:focus {
-  color: #474dff;
+  color: #6b70ff;
   text-decoration: none;
 }
 
@@ -129,11 +129,11 @@ a:focus {
 }
 
 #rewards {
-  color: #474dff;
+  color: #6b70ff;
 }
 
 #miner-name {
-  color: #474dff;
+  color: #6b70ff;
   width: 25ch;
 }
 
@@ -171,6 +171,26 @@ button {
   vertical-align: middle;
   font-size: inherit;
   width: 7rem;
+  background: #6b70ff;
+  border-radius: 5px;
+  color: white;
+  border: 1px solid #a8ecd2;
+}
+
+select {
+  background: #6b70ff;
+  border-radius: 5px;
+  color: white;
+  border: 1px solid #a8ecd2;
+  accent-color: #6b70ff;
+}
+
+select.dark {
+  border: 1px solid #186254;
+}
+
+button.dark {
+  border: 1px solid #186254;
 }
 
 input {
@@ -178,6 +198,14 @@ input {
   margin: 0 auto;
   text-align: center;
   font-size: inherit;
+}
+
+input[type="checkbox"]:checked {
+  accent-color: #6b70ff;
+}
+
+input {
+  accent-color: #6b70ff;
 }
 
 #copy-clip {
@@ -190,7 +218,7 @@ input {
   margin: 0 auto;
   vertical-align: middle;
   border: 0.4rem solid #f3f3f3;
-  border-top: 0.4rem solid #474dff;
+  border-top: 0.4rem solid #6b70ff;
   border-radius: 50%;
   width: 1rem;
   height: 1rem;
