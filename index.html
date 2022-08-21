@@ -67,10 +67,7 @@
         </div>
       </div>
     </div>
-    <form id='currency-form' autocomplete=" off">
-            <div id=" hnt-price" style="color: #474dff;">HNT price: <span id="price">💰</span> <span
-                id="fiat-currency">USD</span>
-            </div>
+    <form id=" currency-form" autocomplete="off">
             <div>
               <label for="fiat-select">Fiat currency</label>
               <select id="fiat-select" autocomplete="off">
@@ -97,6 +94,49 @@
               </select>
             </div>
             </form>
+            <table id="hnt-stats">
+              <tr>
+                <th style="visibility: hidden;">
+                  Transactions
+                </th>
+                <th title="Helium network (blockchain) stats">
+                  <b><span style="color:#474dff">HNT</span> stats</b>
+                </th>
+                <th style="visibility: hidden;">
+                  Transactions
+                </th>
+              </tr>
+              <tr>
+                <td>Price</td>
+                <td>Supply</td>
+                <td title="Rewards distributed last 24 hours">Rewards</td>
+              </tr>
+              <tr style="color:#474dff">
+                <td id="hnt-price" title="USD"><span id="price"></span></td>
+                <td id="hnt-supply" title="Token supply"></td>
+                <td id="hnt-rewards" title="HNT"></td>
+              </tr>
+              <tr>
+                <td>Miners</td>
+                <td>Validators</td>
+                <td>OUIs</td>
+              </tr>
+              <tr style="color:#474dff">
+                <td id="total-miners"></td>
+                <td id="total-validators"></td>
+                <td id="total-ouis" title="Organizationally Unique Identifiers, each LoRaWAN Network Server (LNS)"></td>
+              </tr>
+              <tr>
+                <td>Blocks</td>
+                <td>Transactions</td>
+                <td>Challenges</td>
+              </tr>
+              <tr style="color:#474dff">
+                <td id="total-blocks" title="Total blocks on the blockchain"></td>
+                <td id="total-transactions" title="Total transactions on the blockchain"></td>
+                <td id="total-challenges" title="Total challenges (Proof of Coverage or PoC) on the blockchain"></td>
+              </tr>
+            </table>
             <form id="check-form" autocomplete="on">
               <label id="miner-id-label" for="miner-name">Miner name</label>
               <span class="tooltip">

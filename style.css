@@ -119,6 +119,15 @@ a:focus {
   padding: 0px 0px 0px 0px;
 }
 
+#hnt-stats td,
+#hnt-stats th {
+  padding: 0px 0px 0px 0px;
+}
+
+#hnt-stats {
+  font-size: 1rem;
+}
+
 #rewards {
   color: #474dff;
 }

@@ -3,11 +3,9 @@
  * @author m4573Rm4c0 <soacmaster@proton.me>
  */
 // TODO:
-// - make automatic dark/light mode following system settings (works via CSS, javascript auto/manual handling needed):
-// https://stackoverflow.com/questions/56393880/how-do-i-detect-dark-mode-using-javascript
 // - Handle multiple miners with same name (show pop up and select one) => use dialog element:
 // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog
-// - Improve SEO stuff (shorten site description, adapt font size for mobile, etc.)
+// - Improve SEO stuff (check recommendations from online analysis)
 // - Share it in reddit, discord, telegram, and medium (create post)
 // Future:
 // - Simplify and organize promises chain properly:
@@ -17,19 +15,17 @@
 //    .then(stepTwo, handleErrorOne)
 //    .then(stepThree, handleErrorTwo)
 //    .then(null, handleErrorThree)
-// - document functions
 // - Move all styles to style.css, simplify them (also minimize css)
 // - Make that updating properties, the correpondant element get updated automatically:
 // https://medium.com/@suvechhyabanerjee92/watch-an-object-for-changes-in-vanilla-javascript-a5f1322a4ca5
-// - Show HNT's supply
 // - Show Witnesses and Witnessed last 5 days (time interval not possible)
 // - Show challenges
 // - Show total hostspots around a certain radius (Km)
 // - Show AVG challenges / miner last 24 hours
 // - Show graph of selected period
 // - Extra (whole network):
-//    - Show total miners
 //    - Show AVG rewards whole network (total miners / rewards)
+// - document functions
 // - organize and simplify code
 
 // Helper function
@@ -172,10 +168,19 @@ els.dateEnd.max = els.dateStart.max;
 period.eDate = period.eDate.toISOString().split(".")[0];
 period.sDate = period.sDate.toISOString().split(".")[0];
 
+// set into dark mode if detected
+if (
+  window.matchMedia &&
+  window.matchMedia("(prefers-color-scheme: dark)").matches
+) {
+  document.body.classList.toggle("dark");
+  els.themeToggler.classList.toggle("fa-sun");
+}
+
 // event listeners
 
 document.addEventListener("DOMContentLoaded", () => {
-  checkPrice();
+  checkPrice().then(updateTotalRewards).then(updateStats);
 });
 
 els.themeToggler.addEventListener("click", () => {
@@ -406,9 +411,63 @@ async function showRewards(data) {
  * @param data
  */
 async function updatePrice(data) {
-  els.fiatCurrency.innerHTML = rewards.fiatCurrency;
+  els.hntPrice.title = rewards.fiatCurrency;
   rewards.fiatPrice = data.helium[rewards.fiatCurrency.toLowerCase()];
   els.price.innerHTML = rewards.fiatPrice;
+}
+
+/**
+ *
+ */
+function numToShort(number) {
+  const short = new Intl.NumberFormat("en-GB", {
+    notation: "compact",
+    compactDisplay: "short",
+  }).format(number);
+  return short;
+}
+
+/**
+ *
+ */
+async function updateTotalRewards() {
+  const queryURL = `${baseURL}/rewards/sum?min_time=-1%20day`;
+  await fetch(queryURL)
+    .then(getResponse)
+    .then((resp) => {
+      const rewardsShort = numToShort(resp.data.total);
+      els.hntRewards.innerHTML = rewardsShort;
+    });
+}
+
+/**
+ *
+ */
+async function updateStats() {
+  const queryURL = `${baseURL}/stats`;
+  await fetch(queryURL)
+    .then(getResponse)
+    .then((resp) => {
+      const supplyShort = numToShort(resp.data.token_supply);
+      const totalMinersShort = numToShort(resp.data.counts.hotspots);
+      const totalOnline = numToShort(resp.data.counts.hotspots_online);
+      const totalValidators = numToShort(resp.data.counts.validators);
+      const totalOuis = numToShort(resp.data.counts.ouis);
+      const totalBlocks = numToShort(resp.data.counts.blocks);
+      const totalTransactions = numToShort(resp.data.counts.transactions);
+      const totalChallenges = numToShort(resp.data.counts.challenges);
+      const percOnline = parseInt(
+        (resp.data.counts.hotspots_online * 100) / resp.data.counts.hotspots
+      );
+      els.hntSupply.innerHTML = supplyShort;
+      els.totalMiners.innerHTML = totalMinersShort;
+      els.totalMiners.title = `Online: ${totalOnline} (${percOnline}%)`;
+      els.totalValidators.innerHTML = totalValidators;
+      els.totalOuis.innerHTML = totalOuis;
+      els.totalBlocks.innerHTML = totalBlocks;
+      els.totalTransactions.innerHTML = totalTransactions;
+      els.totalChallenges.innerHTML = totalChallenges;
+    });
 }
 
 /**
