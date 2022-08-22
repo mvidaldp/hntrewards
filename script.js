@@ -3,30 +3,37 @@
  * @author m4573Rm4c0 <soacmaster@proton.me>
  */
 // TODO:
+// - Collect and console.table print network stats and extra info like the rest
+// - Allow to collapse/expand network stats and miner and other info
+// - Fix tooltips on mobile (out of screen)
 // - Handle multiple miners with same name (show pop up and select one) => use dialog element:
-// https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog
-// - Improve SEO stuff (check recommendations from online analysis)
-// - Share it in reddit, discord, telegram, and medium (create post)
-// Future:
-// - Simplify and organize promises chain properly:
-//  - Check when synchronous code is needed and when not.
-//  - Return Promise (async) or Throw error (sync) accordingly
+//   https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog
+// - Show Witnesses and Witnessed last 5 days (interval possible)
+// - Show challenges
+// - Show total hostspots around a certain radius (Km) (allow to pick radius/hex)
+// - Show AVG challenges / miner last 24 hours
+// - Show AVG rewards whole network (total miners / rewards)
+// Debug and fix promises chain:
+// - Simplify and organize promises chain properly
+// - Check when synchronous code is needed and when not.
+// - Return Promise (async) or Throw error (sync) accordingly
 //  stepOne()
 //    .then(stepTwo, handleErrorOne)
 //    .then(stepThree, handleErrorTwo)
 //    .then(null, handleErrorThree)
-// - Move all styles to style.css, simplify them (also minimize css)
-// - Make that updating properties, the correpondant element get updated automatically:
-// https://medium.com/@suvechhyabanerjee92/watch-an-object-for-changes-in-vanilla-javascript-a5f1322a4ca5
-// - Show Witnesses and Witnessed last 5 days (time interval not possible)
-// - Show challenges
-// - Show total hostspots around a certain radius (Km)
-// - Show AVG challenges / miner last 24 hours
-// - Show graph of selected period
-// - Extra (whole network):
-//    - Show AVG rewards whole network (total miners / rewards)
-// - document functions
-// - organize and simplify code
+// - Make sure promises chain work! Test all steps and scenarios
+// - Also important:
+//  - Move all styles to style.css, simplify them (also minimize css)
+//  - Improve SEO stuff (check recommendations from online analysis)
+//  - Share it in reddit, discord, telegram, and medium (create post)
+//  - Ask Uri about how to improve design/UI
+//  - document functions
+//  - organize and simplify code
+//  - add helium miners/retailers or crypto ads
+// - Extra:
+//  - Show graph/sparkline of selected period
+//  - Make that updating properties, the correpondant element get updated automatically:
+//    https://medium.com/@suvechhyabanerjee92/watch-an-object-for-changes-in-vanilla-javascript-a5f1322a4ca5
 
 // Helper function
 const domReady = (cb) => {
@@ -183,7 +190,7 @@ if (
 // event listeners
 
 document.addEventListener("DOMContentLoaded", () => {
-  checkPrice().then(updateTotalRewards).then(updateStats);
+  checkPrice().then(updateStats).then(updateTotalRewards);
 });
 
 els.themeToggler.addEventListener("click", () => {
