@@ -110,8 +110,8 @@ a:focus {
   text-decoration: none;
 }
 
-.hidden {
-  visibility: hidden;
+#miner-info-content {
+  margin: 0 auto;
 }
 
 #miner-info-content td,
@@ -175,6 +175,7 @@ button {
   border-radius: 5px;
   color: white;
   border: 1px solid #a8ecd2;
+  margin: 6px 6px;
 }
 
 select {
@@ -212,9 +213,8 @@ input {
   cursor: default;
 }
 
-#loader,
-.loader {
-  display: inline-block;
+#loader {
+  display: none;
   margin: 0 auto;
   vertical-align: middle;
   border: 0.4rem solid #f3f3f3;
@@ -332,13 +332,12 @@ details > summary span.icon {
 }
 
 details[open] summary span.icon {
-  transform: rotate(180deg);
+  transform: rotate(360deg);
 }
 
 summary {
   cursor: pointer;
-  display: flex;
-  width: fit-content;
+  width: 241px;
   margin: 0 auto;
 }
 
@@ -361,4 +360,10 @@ details > summary {
 #miner-selector {
   margin: 0 auto;
   text-align: center;
+}
+
+br {
+  display: block;
+  margin: 0 0 0 0;
+  padding: 0 0 0 0;
 }

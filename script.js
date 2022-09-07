@@ -3,7 +3,7 @@
  * @author m4573Rm4c0 <soacmaster@proton.me>
  */
 // TODO:
-// - Fix delay hidding summary's icons
+// - Fix dialog/modal style on dark mode
 // - Collect network stats and console.table them
 // - Collect parameters into object and console.table them
 // - Remove fiatCurrency and fiatPrice from rewards (fiatPrice on network stats table, fiatcurrency on parameters table)
@@ -301,21 +301,66 @@ els.minerLocations.addEventListener("change", () => {
   else els.confirmBtn.removeAttribute("disabled");
 });
 els.statsDetails.addEventListener("toggle", () => {
-  const first = els.statsDetails.hasAttribute("open")
-    ? "fa-maximize"
-    : "fa-minimize";
-  const second = first === "fa-minimize" ? "fa-maximize" : "fa-minimize";
+  const first = els.statsDetails.hasAttribute("open") ? "fa-plus" : "fa-minus";
+  const second = first === "fa-minus" ? "fa-plus" : "fa-minus";
   els.statsIcoLeft.classList.replace(first, second);
   els.statsIcoRight.classList.replace(first, second);
 });
 els.minerDetails.addEventListener("toggle", () => {
-  const first = els.minerDetails.hasAttribute("open")
-    ? "fa-maximize"
-    : "fa-minimize";
-  const second = first === "fa-minimize" ? "fa-maximize" : "fa-minimize";
+  const first = els.minerDetails.hasAttribute("open") ? "fa-plus" : "fa-minus";
+  const second = first === "fa-minus" ? "fa-plus" : "fa-minus";
   els.minerIcoLeft.classList.replace(first, second);
   els.minerIcoRight.classList.replace(first, second);
 });
+
+// BLOCK SCROLLING
+
+// left: 37, up: 38, right: 39, down: 40,
+// spacebar: 32, pageup: 33, pagedown: 34, end: 35, home: 36
+const keys = { 37: 1, 38: 1, 39: 1, 40: 1 };
+
+function preventDefault(e) {
+  e.preventDefault();
+}
+
+function preventDefaultForScrollKeys(e) {
+  if (keys[e.keyCode]) {
+    preventDefault(e);
+    return false;
+  }
+}
+
+// modern Chrome requires { passive: false } when adding event
+let supportsPassive = false;
+try {
+  window.addEventListener(
+    "test",
+    null,
+    Object.defineProperty({}, "passive", {
+      get: () => (supportsPassive = true),
+    })
+  );
+} catch (e) {}
+
+const wheelOpt = supportsPassive ? { passive: false } : false;
+const wheelEvent =
+  "onwheel" in document.createElement("div") ? "wheel" : "mousewheel";
+
+// call this to Disable
+function disableScroll() {
+  window.addEventListener("DOMMouseScroll", preventDefault, false); // older FF
+  window.addEventListener(wheelEvent, preventDefault, wheelOpt); // modern desktop
+  window.addEventListener("touchmove", preventDefault, wheelOpt); // mobile
+  window.addEventListener("keydown", preventDefaultForScrollKeys, false);
+}
+
+// call this to Enable
+function enableScroll() {
+  window.removeEventListener("DOMMouseScroll", preventDefault, false);
+  window.removeEventListener(wheelEvent, preventDefault, wheelOpt);
+  window.removeEventListener("touchmove", preventDefault, wheelOpt);
+  window.removeEventListener("keydown", preventDefaultForScrollKeys, false);
+}
 
 /**
  *
@@ -380,7 +425,7 @@ function toggleStyle() {
   els.minerId.removeAttribute("href");
   els.ownerId.removeAttribute("data-id");
   els.ownerId.removeAttribute("href");
-  els.loader.classList.toggle("hidden");
+  els.loader.style.display = els.check.innerHTML === "Check" ? "block" : "none";
   els.check.innerHTML =
     els.check.innerHTML === "Check" ? "Checking..." : "Check";
   els.check.toggleAttribute("disabled");
@@ -390,16 +435,14 @@ function toggleStyle() {
  *
  */
 function displayResults() {
-  els.rewardsTable.style.visibility = "visible";
-  els.minerDetails.style.visibility = "visible";
+  els.results.style.display = "";
 }
 
 /**
  *
  */
 function hideResults() {
-  els.rewardsTable.style.visibility = "hidden";
-  els.minerDetails.style.visibility = "hidden";
+  els.results.style.display = "none";
 }
 
 /**
@@ -587,25 +630,22 @@ async function getId(data) {
       } else {
         els.confirmBtn.setAttribute("disabled", "");
         els.minerDialog.showModal();
-
-        return new Promise((resolve, reject) => {
+        disableScroll();
+        return new Promise((resolve) => {
           // "Confirm" button of form triggers "close" on dialog because of [method="dialog"]
           els.minerDialog.addEventListener("close", () => {
             els.minerDialog.removeEventListener("close", () => {});
             if (els.minerLocations.value !== "default") {
+              enableScroll();
               storeMinerInfo(data.data[els.minerLocations.value]);
               resolve(miner.id);
             } else {
               els.minerDialog.removeAttribute("open");
               console.log("Miner not selected");
               getId(data);
-              // return reject(new Error("Miner not selected"));
             }
           });
         });
-        /* TODO:
-         * - Manage cancel option
-         */
       }
     } else {
       storeMinerInfo(data.data[0]);
