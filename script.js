@@ -421,10 +421,6 @@ function toggleStyle() {
   if (!(els.customCheck.checked || els.periodSelect.value === "max")) {
     els.timeInterval.style.visibility = "hidden";
   }
-  els.minerId.removeAttribute("data-id");
-  els.minerId.removeAttribute("href");
-  els.ownerId.removeAttribute("data-id");
-  els.ownerId.removeAttribute("href");
   els.loader.style.display = els.check.innerHTML === "Check" ? "block" : "none";
   els.check.innerHTML =
     els.check.innerHTML === "Check" ? "Checking..." : "Check";
@@ -578,6 +574,10 @@ function storeMinerInfo(minerData) {
     els.infoThLeft.title = "Offline";
     els.infoThRight.title = "Offline";
   }
+  els.minerId.removeAttribute("data-id");
+  els.minerId.removeAttribute("href");
+  els.ownerId.removeAttribute("data-id");
+  els.ownerId.removeAttribute("href");
   els.minerId.setAttribute("data-id", miner.id);
   els.minerId.setAttribute("href", `${explorerURL}/hotspots/${miner.id}`);
   els.ownerId.setAttribute("data-id", miner.owner);
