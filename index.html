@@ -94,49 +94,47 @@
               </select>
             </div>
             </form>
-            <table id="hnt-stats">
-              <tr>
-                <th style="visibility: hidden;">
-                  Transactions
-                </th>
-                <th title="Helium network (blockchain) stats">
-                  <b><span style="color:#6b70ff">HNT</span> stats</b>
-                </th>
-                <th style="visibility: hidden;">
-                  Transactions
-                </th>
-              </tr>
-              <tr>
-                <td>Price</td>
-                <td>Supply</td>
-                <td title="Rewards distributed last 24 hours">Rewards</td>
-              </tr>
-              <tr style="color:#6b70ff">
-                <td id="hnt-price" title="USD"><span id="price"></span></td>
-                <td id="hnt-supply" title="Token supply"></td>
-                <td id="hnt-rewards" title="HNT"></td>
-              </tr>
-              <tr>
-                <td>Miners</td>
-                <td>Validators</td>
-                <td>OUIs</td>
-              </tr>
-              <tr style="color:#6b70ff">
-                <td id="total-miners"></td>
-                <td id="total-validators"></td>
-                <td id="total-ouis" title="Organizationally Unique Identifiers, each LoRaWAN Network Server (LNS)"></td>
-              </tr>
-              <tr>
-                <td>Blocks</td>
-                <td>Transactions</td>
-                <td>Challenges</td>
-              </tr>
-              <tr style="color:#6b70ff">
-                <td id="total-blocks" title="Total blocks on the blockchain"></td>
-                <td id="total-transactions" title="Total transactions on the blockchain"></td>
-                <td id="total-challenges" title="Total challenges (Proof of Coverage or PoC) on the blockchain"></td>
-              </tr>
-            </table>
+            <details id="stats-details" open>
+              <summary title="Helium network (blockchain) stats">
+                <span class="icon"><i id="stats-ico-left" class="fa-solid fa-minimize"></i></span>
+                <span style="color:#6b70ff">HNT</span>&nbsp;stats
+                <span class="icon"><i id="stats-ico-right" class="fa-solid fa-minimize"></i></span>
+              </summary>
+              <table id="hnt-stats">
+                <tr>
+                  <td>Price</td>
+                  <td>Supply</td>
+                  <td title="Rewards distributed last 24 hours">Rewards</td>
+                </tr>
+                <tr style="color:#6b70ff">
+                  <td id="hnt-price" title="USD"><span id="price"></span></td>
+                  <td id="hnt-supply" title="Token supply"></td>
+                  <td id="hnt-rewards" title="HNT"></td>
+                </tr>
+                <tr>
+                  <td>Miners</td>
+                  <td>Validators</td>
+                  <td>OUIs</td>
+                </tr>
+                <tr style="color:#6b70ff">
+                  <td id="total-miners"></td>
+                  <td id="total-validators"></td>
+                  <td id="total-ouis" title="Organizationally Unique Identifiers, each LoRaWAN Network Server (LNS)">
+                  </td>
+                </tr>
+                <tr>
+                  <td>Blocks</td>
+                  <td>Transactions</td>
+                  <td>Challenges</td>
+                </tr>
+                <tr style="color:#6b70ff">
+                  <td id="total-blocks" title="Total blocks on the blockchain"></td>
+                  <td id="total-transactions" title="Total transactions on the blockchain"></td>
+                  <td id="total-challenges" title="Total challenges (Proof of Coverage or PoC) on the blockchain"></td>
+                </tr>
+              </table>
+            </details>
+
             <form id="check-form" autocomplete="on">
               <label id="miner-id-label" for="miner-name">Miner name</label>
               <span class="tooltip">
@@ -168,7 +166,7 @@
                 </select>
               </div>
               <div style="text-align: left;">
-                <input id="custom-check" type="checkbox">
+                <input id="custom-check" type="checkbox" autocomplete="off">
                 <label id="custom-label" for="custom-check">Custom period: <span id="time-interval"
                     style="visibility: hidden;">1 day</span></label>
               </div>
@@ -210,46 +208,52 @@
                 <td id="rewards-fiat-hour"></td>
               </tr>
             </table>
-            <table id="miner-table" style="visibility: hidden;">
-              <tr>
-                <th id="info-th-left"><i class="fa-solid fa-tower-broadcast"></i></th>
-                <th>Miner Info</th>
-                <th id="info-th-right"><i class="fa-solid fa-tower-broadcast"></i> </th>
-              </tr>
-              <tr>
-                <td title="Miner's address" id="id-icon"><i class="fa-solid fa-at"></i></td>
-                <td><a id="miner-id" title="See the miner on the Helium explorer" target="_blank" rel="noopener">🤔</a>
-                </td>
-                <td id="copy-clip" class="tooltip">
-                  <span class="tooltiptext" id="miner-tooltip">Copy address to clipboard</span>
-                  <i class="fa-solid fa-clipboard-list"></i>
-                </td>
-              </tr>
-              <tr>
-                <td title="Owner's address" id="icon-owner"><i class="fa-solid fa-user"></i></td>
-                <td><a id="owner-id" title="See the owner on the Helium explorer" target="_blank" rel="noopener">🤔</a>
-                </td>
-                <td id="copy-clip-owner" class="tooltip">
-                  <span class="tooltiptext" id="owner-tooltip">Copy address to clipboard</span>
-                  <i class="fa-solid fa-clipboard-list"></i>
-                </td>
-              </tr>
-              <tr title="Added date">
-                <td><i class="fa-solid fa-cake-candles"></i></td>
-                <td id="added-date">🤔</td>
-                <td><i class="fa-solid fa-cake-candles"></i></td>
-              </tr>
-              <tr title="Location">
-                <td><i class="fa-solid fa-location-dot"></i></td>
-                <td><a target="_blank" id="location" href="#" rel="noopener"></a></td>
-                <td><i class="fa-solid fa-location-dot"></i></td>
-              </tr>
-              <tr title="Transmit scale">
-                <td><i class="fa-solid fa-scale-balanced"></i></td>
-                <td id="scale"></td>
-                <td><i class="fa-solid fa-scale-balanced"></i></td>
-              </tr>
-            </table>
+            <details id="miner-details" style="visibility: hidden;" open="">
+              <summary title="Helium network (blockchain) stats">
+                <span class="icon"><i id="miner-ico-left" class="fa-solid fa-minimize"></i></span>
+                <span id="info-th-left"><i class="fa-solid fa-tower-broadcast"></i></span>
+                <span style="color:#6b70ff">Miner Info</span>
+                <span id="info-th-right"><i class="fa-solid fa-tower-broadcast"></i></span>
+                <span class="icon"><i id="miner-ico-right" class="fa-solid fa-minimize"></i></span>
+              </summary>
+              <table id="miner-info-content">
+                <tr>
+                  <td title="Miner's address" id="id-icon"><i class="fa-solid fa-at"></i></td>
+                  <td><a id="miner-id" title="See the miner on the Helium explorer" target="_blank"
+                      rel="noopener">🤔</a>
+                  </td>
+                  <td id="copy-clip" class="tooltip">
+                    <span class="tooltiptext" id="miner-tooltip">Copy address to clipboard</span>
+                    <i class="fa-solid fa-clipboard-list"></i>
+                  </td>
+                </tr>
+                <tr>
+                  <td title="Owner's address" id="icon-owner"><i class="fa-solid fa-user"></i></td>
+                  <td><a id="owner-id" title="See the owner on the Helium explorer" target="_blank"
+                      rel="noopener">🤔</a>
+                  </td>
+                  <td id="copy-clip-owner" class="tooltip">
+                    <span class="tooltiptext" id="owner-tooltip">Copy address to clipboard</span>
+                    <i class="fa-solid fa-clipboard-list"></i>
+                  </td>
+                </tr>
+                <tr title="Added date">
+                  <td><i class="fa-solid fa-cake-candles"></i></td>
+                  <td id="added-date">🤔</td>
+                  <td><i class="fa-solid fa-cake-candles"></i></td>
+                </tr>
+                <tr title="Location">
+                  <td><i class="fa-solid fa-location-dot"></i></td>
+                  <td><a target="_blank" id="location" href="#" rel="noopener"></a></td>
+                  <td><i class="fa-solid fa-location-dot"></i></td>
+                </tr>
+                <tr title="Transmit scale">
+                  <td><i class="fa-solid fa-scale-balanced"></i></td>
+                  <td id="scale"></td>
+                  <td><i class="fa-solid fa-scale-balanced"></i></td>
+                </tr>
+              </table>
+            </details>
           </div>
         </div>
         <div id="about-container">
@@ -324,6 +328,26 @@
                     donate HNT to support it.
                   </p>
                 </div>
+                <!-- Simple modal dialog containing a form -->
+                <dialog id="miner-dialog">
+                  <form id="miner-selector" method="dialog">
+                    <span id="miner-wildcard" style="color: #6b70ff">Bla Bla Bla</span><br>exists in different
+                    locations.
+                    <br>Please select the desired one.
+                    <p><label>Location:
+                        <select id="miner-locations">
+                          <!-- automatically generated options
+                            <option value="default">Choose…</option>
+                            <option>City (Country)</option>
+                          -->
+                        </select>
+                      </label></p>
+                    <div>
+                      <button id="confirm-btn" disabled>Confirm</button>
+                    </div>
+                  </form>
+                </dialog>
+
 </body>
 
 </html>

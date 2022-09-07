@@ -3,16 +3,18 @@
  * @author m4573Rm4c0 <soacmaster@proton.me>
  */
 // TODO:
-// - Collect and console.table print network stats and extra info like the rest
-// - Allow to collapse/expand network stats and miner and other info
-// - Fix tooltips on mobile (out of screen)
-// - Handle multiple miners with same name (show pop up and select one) => use dialog element:
-//   https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog
+// - Fix delay hidding summary's icons
+// - Collect network stats and console.table them
+// - Collect parameters into object and console.table them
+// - Remove fiatCurrency and fiatPrice from rewards (fiatPrice on network stats table, fiatcurrency on parameters table)
+// - Fix tooltips on mobile (out of screen) (set width to auto/content)
 // - Show Witnesses and Witnessed last 5 days (interval possible)
 // - Show challenges
 // - Show total hostspots around a certain radius (Km) (allow to pick radius/hex)
 // - Show AVG challenges / miner last 24 hours
 // - Show AVG rewards whole network (total miners / rewards)
+// - Implement text loading animation on stats:
+//   https://dev.to/stackfindover/youtube-loading-animation-using-html-and-css-44c2
 // Debug and fix promises chain:
 // - Simplify and organize promises chain properly
 // - Check when synchronous code is needed and when not.
@@ -31,7 +33,7 @@
 //  - organize and simplify code
 //  - add helium miners/retailers or crypto ads
 // - Extra:
-//  - Show graph/sparkline of selected period
+//  - Show graph/sparkline of selected period: https://www.chartjs.org/docs/latest/
 //  - Make that updating properties, the correpondant element get updated automatically:
 //    https://medium.com/@suvechhyabanerjee92/watch-an-object-for-changes-in-vanilla-javascript-a5f1322a4ca5
 
@@ -246,7 +248,7 @@ els.copyClip.addEventListener("click", () => {
   if (els.minerId.hasAttribute("data-id")) {
     const val = els.minerId.getAttribute("data-id");
     navigator.clipboard.writeText(val);
-    els.minerTooltip.innerHTML = "🤫 Miner's address copied 🤫";
+    els.minerTooltip.innerHTML = "🤫 Address copied 🤫";
   }
 });
 
@@ -254,7 +256,7 @@ els.copyClipOwner.addEventListener("click", () => {
   if (els.minerId.hasAttribute("data-id")) {
     const val = els.ownerId.getAttribute("data-id");
     navigator.clipboard.writeText(val);
-    els.ownerTooltip.innerHTML = "🤫 Owner's address copied 🤫";
+    els.ownerTooltip.innerHTML = "🤫 Address copied 🤫";
   }
 });
 
@@ -271,6 +273,8 @@ els.customCheck.addEventListener("change", () => {
     els.dateStart.removeAttribute("disabled");
     els.dateEnd.removeAttribute("disabled");
   }
+  els.startBlock.classList.toggle("colored");
+  els.endBlock.classList.toggle("colored");
 });
 
 els.checkForm.addEventListener("submit", () => scriptFlow());
@@ -290,7 +294,28 @@ els.dateEnd.addEventListener("change", () => {
   els.dateEnd.max = els.dateStart.max;
 });
 
-els.checkForm.addEventListener("submit", (event) => event.preventDefault());
+els.checkForm.addEventListener("submit", (e) => e.preventDefault());
+els.minerDialog.addEventListener("cancel", (e) => e.preventDefault());
+els.minerLocations.addEventListener("change", () => {
+  if (this === "default") els.confirmBtn.setAttribute("disabled", "");
+  else els.confirmBtn.removeAttribute("disabled");
+});
+els.statsDetails.addEventListener("toggle", () => {
+  const first = els.statsDetails.hasAttribute("open")
+    ? "fa-maximize"
+    : "fa-minimize";
+  const second = first === "fa-minimize" ? "fa-maximize" : "fa-minimize";
+  els.statsIcoLeft.classList.replace(first, second);
+  els.statsIcoRight.classList.replace(first, second);
+});
+els.minerDetails.addEventListener("toggle", () => {
+  const first = els.minerDetails.hasAttribute("open")
+    ? "fa-maximize"
+    : "fa-minimize";
+  const second = first === "fa-minimize" ? "fa-maximize" : "fa-minimize";
+  els.minerIcoLeft.classList.replace(first, second);
+  els.minerIcoRight.classList.replace(first, second);
+});
 
 /**
  *
@@ -348,6 +373,13 @@ function updatePeriod() {
  *
  */
 function toggleStyle() {
+  if (!(els.customCheck.checked || els.periodSelect.value === "max")) {
+    els.timeInterval.style.visibility = "hidden";
+  }
+  els.minerId.removeAttribute("data-id");
+  els.minerId.removeAttribute("href");
+  els.ownerId.removeAttribute("data-id");
+  els.ownerId.removeAttribute("href");
   els.loader.classList.toggle("hidden");
   els.check.innerHTML =
     els.check.innerHTML === "Check" ? "Checking..." : "Check";
@@ -359,7 +391,7 @@ function toggleStyle() {
  */
 function displayResults() {
   els.rewardsTable.style.visibility = "visible";
-  els.minerTable.style.visibility = "visible";
+  els.minerDetails.style.visibility = "visible";
 }
 
 /**
@@ -367,7 +399,7 @@ function displayResults() {
  */
 function hideResults() {
   els.rewardsTable.style.visibility = "hidden";
-  els.minerTable.style.visibility = "hidden";
+  els.minerDetails.style.visibility = "hidden";
 }
 
 /**
@@ -384,27 +416,9 @@ function getResponse(response) {
 /**
  *
  * @param data
- */
-async function updateRewards(data) {
-  const fiat = data.helium[rewards.fiatCurrency.toLowerCase()];
-  rewards.fiatPrice = fiat;
-  rewards.fiat = rewards.hnt * fiat;
-  rewards.fiatDay = rewards.hntDay * fiat;
-  rewards.fiatHour = rewards.hntHour * fiat;
-  els.rewardsFiatLbl.innerHTML = rewards.fiatCurrency;
-  els.rewardsFiat.innerHTML = rewards.fiat.toFixed(2);
-  els.rewardsFiatDay.innerHTML = rewards.fiatDay.toFixed(2);
-  els.rewardsFiatHour.innerHTML = rewards.fiatHour.toFixed(2);
-  console.log("Rewards:");
-  console.table(rewards);
-}
-
-/**
- *
- * @param data
  * @example
  */
-async function showRewards(data) {
+function showRewards(data) {
   rewards.hnt = data.data.total;
   rewards.hntDay = rewards.hnt / period.unit;
   rewards.hntHour = rewards.hntDay / 24;
@@ -413,8 +427,15 @@ async function showRewards(data) {
   els.rewardsHour.innerHTML = rewards.hntHour.toFixed(3);
   const currency = els.fiatSelect.options[els.fiatSelect.selectedIndex].text;
   rewards.fiatCurrency = currency;
-  const queryURL = `${cgQueryURL}${currency.toLowerCase()}`;
-  await fetch(queryURL).then(getResponse).then(updateRewards);
+  rewards.fiat = rewards.hnt * rewards.fiatPrice;
+  rewards.fiatDay = rewards.hntDay * rewards.fiatPrice;
+  rewards.fiatHour = rewards.hntHour * rewards.fiatPrice;
+  els.rewardsFiatLbl.innerHTML = rewards.fiatCurrency;
+  els.rewardsFiat.innerHTML = rewards.fiat.toFixed(2);
+  els.rewardsFiatDay.innerHTML = rewards.fiatDay.toFixed(2);
+  els.rewardsFiatHour.innerHTML = rewards.fiatHour.toFixed(2);
+  console.log("Rewards:");
+  console.table(rewards);
   toggleStyle();
   displayResults();
 }
@@ -493,58 +514,103 @@ async function checkPrice() {
   await fetch(queryURL).then(getResponse).then(updatePrice);
 }
 
+function storeMinerInfo(minerData) {
+  miner.name = minerData.name;
+  miner.id = minerData.address;
+  miner.owner = minerData.owner;
+  miner.added = minerData.timestamp_added;
+  miner.location = `${minerData.geocode.long_city} (${minerData.geocode.long_country})`;
+  miner.lat = minerData.lat;
+  miner.lng = minerData.lng;
+  miner.scale = minerData.reward_scale;
+  miner.online = minerData.status.online === "online";
+  if (miner.online) {
+    els.infoThLeft.style.color = "green";
+    els.infoThRight.style.color = "green";
+    els.infoThLeft.title = "Online";
+    els.infoThRight.title = "Online";
+  } else {
+    els.infoThLeft.style.color = "red";
+    els.infoThRight.style.color = "red";
+    els.infoThLeft.title = "Offline";
+    els.infoThRight.title = "Offline";
+  }
+  els.minerId.setAttribute("data-id", miner.id);
+  els.minerId.setAttribute("href", `${explorerURL}/hotspots/${miner.id}`);
+  els.ownerId.setAttribute("data-id", miner.owner);
+  els.ownerId.setAttribute("href", `${explorerURL}/accounts/${miner.owner}`);
+  const hiddenAddress = `${miner.id.substring(0, 7)}...${miner.id.substring(
+    miner.id.length - 7,
+    miner.id.length
+  )}`;
+  els.minerId.innerHTML = hiddenAddress;
+  let added = new Date(miner.added);
+  miner.sinceAdded = dateDiff(new Date(), added);
+  added = added.toDateString();
+  els.addedDate.innerHTML = `${added} (${miner.sinceAdded})`;
+  const hiddenOwner = `${miner.owner.substring(0, 7)}...${miner.owner.substring(
+    miner.owner.length - 7,
+    miner.owner.length
+  )}`;
+  els.location.innerHTML = miner.location;
+  els.location.setAttribute("href", `${gMapsURL}${miner.lat},${miner.lng}`);
+  els.ownerId.innerHTML = hiddenOwner;
+  els.scale.innerHTML = miner.scale;
+  console.log("Miner found:");
+  console.table(miner);
+}
+
 /**
  *
  * @param data
  * @example
  */
-function getId(data) {
+async function getId(data) {
   const found = data.data.length > 0;
   if (found) {
-    miner.name = data.data[0].name;
-    miner.id = data.data[0].address;
-    miner.owner = data.data[0].owner;
-    miner.added = data.data[0].timestamp_added;
-    miner.location = `${data.data[0].geocode.long_city} (${data.data[0].geocode.long_country})`;
-    miner.lat = data.data[0].lat;
-    miner.lng = data.data[0].lng;
-    miner.scale = data.data[0].reward_scale;
-    miner.online = data.data[0].status.online === "online";
-    if (miner.online) {
-      els.infoThLeft.style.color = "green";
-      els.infoThRight.style.color = "green";
-      els.infoThLeft.title = "Online";
-      els.infoThRight.title = "Online";
+    els.minerWildcard.innerHTML = els.minerName.value;
+    if (data.data.length > 1) {
+      els.minerLocations.innerHTML = '<option value="default">Choose…</option>';
+      const minerInfo = data.data;
+      for (let i = 0; i < minerInfo.length; i++) {
+        const cityCountry = `${minerInfo[i].geocode.long_city} (${minerInfo[i].geocode.long_country})`;
+        els.minerLocations.innerHTML += `<option value="${i}">${cityCountry}</option>`;
+      }
+      els.minerLocations.value;
+
+      // If a browser doesn't support the dialog, then hide the dialog contents by default.
+      if (typeof els.minerDialog.showModal !== "function") {
+        els.minerDialog.hidden = true;
+        alert(
+          "Sorry, the <dialog> API is not supported by this browser. Please update your browser."
+        );
+      } else {
+        els.confirmBtn.setAttribute("disabled", "");
+        els.minerDialog.showModal();
+
+        return new Promise((resolve, reject) => {
+          // "Confirm" button of form triggers "close" on dialog because of [method="dialog"]
+          els.minerDialog.addEventListener("close", () => {
+            els.minerDialog.removeEventListener("close", () => {});
+            if (els.minerLocations.value !== "default") {
+              storeMinerInfo(data.data[els.minerLocations.value]);
+              resolve(miner.id);
+            } else {
+              els.minerDialog.removeAttribute("open");
+              console.log("Miner not selected");
+              getId(data);
+              // return reject(new Error("Miner not selected"));
+            }
+          });
+        });
+        /* TODO:
+         * - Manage cancel option
+         */
+      }
     } else {
-      els.infoThLeft.style.color = "red";
-      els.infoThRight.style.color = "red";
-      els.infoThLeft.title = "Offline";
-      els.infoThRight.title = "Offline";
+      storeMinerInfo(data.data[0]);
+      return Promise.resolve(miner.id);
     }
-    els.minerId.setAttribute("data-id", miner.id);
-    els.minerId.setAttribute("href", `${explorerURL}/hotspots/${miner.id}`);
-    els.ownerId.setAttribute("data-id", miner.owner);
-    els.ownerId.setAttribute("href", `${explorerURL}/accounts/${miner.owner}`);
-    const hiddenAddress = `${miner.id.substring(0, 7)}...${miner.id.substring(
-      miner.id.length - 7,
-      miner.id.length
-    )}`;
-    els.minerId.innerHTML = hiddenAddress;
-    let added = new Date(miner.added);
-    miner.sinceAdded = dateDiff(new Date(), added);
-    added = added.toDateString();
-    els.addedDate.innerHTML = `${added} (${miner.sinceAdded})`;
-    const hiddenOwner = `${miner.owner.substring(
-      0,
-      7
-    )}...${miner.owner.substring(miner.owner.length - 7, miner.owner.length)}`;
-    els.location.innerHTML = miner.location;
-    els.location.setAttribute("href", `${gMapsURL}${miner.lat},${miner.lng}`);
-    els.ownerId.innerHTML = hiddenOwner;
-    els.scale.innerHTML = miner.scale;
-    console.log("Miner found:");
-    console.table(miner);
-    return Promise.resolve(miner.id);
   } else {
     els.noMinerFound.style.visibility = "visible";
     els.noMinerFound.style.opacity = 1;
@@ -560,36 +626,18 @@ function getId(data) {
  *
  * @example
  */
-async function getMinerId() {
+async function findMiner() {
+  // hide results in case not hidden already
   hideResults();
+  // toggle "Check" --> "Checking..." loading style
   toggleStyle();
+  // parse miner name "First Second Third" to "first-second-third" for API request
   const name = els.minerName.value.trim().toLowerCase().replaceAll(" ", "-");
+  // build URL
   const idQuery = `hotspots/name/${name}`;
   const idURL = `${baseURL}/${idQuery}`;
-  els.minerId.removeAttribute("data-id");
-  els.minerId.removeAttribute("href");
-  els.ownerId.removeAttribute("data-id");
-  els.ownerId.removeAttribute("href");
-  els.rewardsFiat.innerHTML = `? ${rewards.fiatCurrency}`;
-  if (!(els.customCheck.checked || els.periodSelect.value === "max")) {
-    els.timeInterval.style.visibility = "hidden";
-  }
-  const minId = await fetch(idURL)
-    .then(getResponse)
-    .then(getId)
-    .catch((error) => {
-      if (error.message === "Miner not found") {
-        toggleStyle();
-        throw Error(error.message);
-      } else {
-        console.log("Request failed )':");
-        console.log(error.message);
-        console.log("Trying again...");
-        setTimeout(() => {
-          scriptFlow();
-        }, 2000);
-      }
-    });
+  // API request
+  const minId = await fetch(idURL).then(getResponse);
   return minId;
 }
 
@@ -623,24 +671,9 @@ async function getRewards(minerId) {
   const rewardsQuery = `hotspots/${minerId}/rewards/sum?${epochQuery}`;
   const rewardsURL = `${baseURL}/${rewardsQuery}`;
   // const selected = els.periodSelect.value
-  if (minerId !== undefined) {
-    checkPrice();
-    await fetch(rewardsURL)
-      .then(getResponse)
-      .then(showRewards)
-      .catch((error) => {
-        console.log("Request failed )':");
-        console.log(error);
-        console.log("Trying again...");
-        setTimeout(() => {
-          getRewards();
-        }, 2000);
-      });
-  } else {
-    setTimeout(() => {
-      scriptFlow();
-    }, 2000);
-  }
+  await checkPrice();
+  const rewards = await fetch(rewardsURL).then(getResponse);
+  return rewards;
 }
 
 /**
@@ -653,9 +686,29 @@ async function getRewards(minerId) {
  * @example
  */
 async function scriptFlow() {
-  await getMinerId()
-    .then((mId) => getRewards(mId))
+  await findMiner()
+    .then(getId)
     .catch((error) => {
-      console.log(error.message);
+      if (error.message === "Miner not found") {
+        toggleStyle();
+        throw Error(error.message);
+      } else {
+        console.log("Request failed )':");
+        console.log(error.message);
+        console.log("Trying again...");
+        setTimeout(() => {
+          scriptFlow();
+        }, 2000);
+      }
+    })
+    .then(getRewards)
+    .then(showRewards)
+    .catch((error) => {
+      console.log("Request failed )':");
+      console.log(error);
+      console.log("Trying again...");
+      setTimeout(() => {
+        getRewards();
+      }, 2000);
     });
 }

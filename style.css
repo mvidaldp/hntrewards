@@ -2,7 +2,7 @@
 html,
 body {
   max-width: 100%;
-  overflow-x: hidden;
+  /* overflow-x: hidden; */
 }
 
 body {
@@ -114,8 +114,8 @@ a:focus {
   visibility: hidden;
 }
 
-#miner-table td,
-#miner-table th {
+#miner-info-content td,
+#miner-info-content th {
   padding: 0px 0px 0px 0px;
 }
 
@@ -316,4 +316,49 @@ input {
   background: url("QRcode.svg");
   width: 100px;
   height: 100px;
+}
+
+/* collapsible */
+details {
+  user-select: none;
+  text-align: center;
+}
+
+details > summary span.icon {
+  width: 24px;
+  height: 24px;
+  transition: all 0.3s;
+  margin: 0 auto;
+}
+
+details[open] summary span.icon {
+  transform: rotate(180deg);
+}
+
+summary {
+  cursor: pointer;
+  display: flex;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+summary::-webkit-details-marker {
+  display: none;
+}
+
+details > summary {
+  list-style: none;
+}
+
+#miner-info-content {
+  font-size: 1rem;
+}
+
+.colored {
+  color: #6b70ff;
+}
+
+#miner-selector {
+  margin: 0 auto;
+  text-align: center;
 }
