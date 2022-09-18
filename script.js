@@ -3,18 +3,12 @@
  * @author m4573Rm4c0 <soacmaster@proton.me>
  */
 // TODO:
-// - Fix dialog/modal style on dark mode
-// - Collect network stats and console.table them
-// - Collect parameters into object and console.table them
-// - Remove fiatCurrency and fiatPrice from rewards (fiatPrice on network stats table, fiatcurrency on parameters table)
-// - Fix tooltips on mobile (out of screen) (set width to auto/content)
+// - Include loading transition before updating price manually
 // - Show Witnesses and Witnessed last 5 days (interval possible)
 // - Show challenges
 // - Show total hostspots around a certain radius (Km) (allow to pick radius/hex)
 // - Show AVG challenges / miner last 24 hours
 // - Show AVG rewards whole network (total miners / rewards)
-// - Implement text loading animation on stats:
-//   https://dev.to/stackfindover/youtube-loading-animation-using-html-and-css-44c2
 // Debug and fix promises chain:
 // - Simplify and organize promises chain properly
 // - Check when synchronous code is needed and when not.
@@ -25,7 +19,6 @@
 //    .then(null, handleErrorThree)
 // - Make sure promises chain work! Test all steps and scenarios
 // - Also important:
-//  - Move all styles to style.css, simplify them (also minimize css)
 //  - Improve SEO stuff (check recommendations from online analysis)
 //  - Share it in reddit, discord, telegram, and medium (create post)
 //  - Ask Uri about how to improve design/UI
@@ -34,8 +27,7 @@
 //  - add helium miners/retailers or crypto ads
 // - Extra:
 //  - Show graph/sparkline of selected period: https://www.chartjs.org/docs/latest/
-//  - Make that updating properties, the correpondant element get updated automatically:
-//    https://medium.com/@suvechhyabanerjee92/watch-an-object-for-changes-in-vanilla-javascript-a5f1322a4ca5
+//  - Use proxy/handler listening for changes to update DOM elements
 
 // Helper function
 const domReady = (cb) => {
@@ -49,84 +41,33 @@ domReady(() => {
   document.body.style.visibility = "visible";
 });
 
-const miner = {
-  name: null,
-  id: null,
-  owner: null,
-  added: null,
-  sinceAdded: null,
-  location: null,
-  lat: null,
-  lng: null,
-  scale: null,
+const stats = {
+  fiatPrice: null,
+  supply: null,
+  rewards24h: null,
+  miners: null,
   online: null,
+  validators: null,
+  OUIs: null,
+  blocks: null,
+  transactions: null,
+  challenges: null,
 };
 
-const period = {
-  sDate: new Date(),
-  eDate: new Date(),
+const now = new Date();
+
+// original object
+const parameters = {
+  dark: false,
+  fiatCurrency: "USD",
+  name: null,
+  period: "24h",
+  custom: false,
+  sDate: now,
+  eDate: new Date(now.getDate() - 1),
   unit: null,
   diff: null,
 };
-period.sDate.setDate(period.sDate.getDate() - 1);
-
-const rewards = {
-  hnt: 0,
-  hntDay: 0,
-  hntHour: 0,
-  fiatCurrency: "USD",
-  fiatPrice: 0,
-  fiat: 0,
-  fiatDay: 0,
-  fiatHour: 0,
-};
-
-// 1000 ms x 60 seconds x 60 minutes x 24 hours
-const MS_PER_DAY = 1000 * 60 * 60 * 24;
-
-// a and b are javascript Date objects
-/**
- *
- * @param a
- * @param b
- */
-function dateDiff(a, b) {
-  const dA = new Date(a);
-  const dB = new Date(b);
-  // with Date.UTC you discard the time and time-zone information
-  const utcA = Date.UTC(
-    dA.getFullYear(),
-    dA.getMonth(),
-    dA.getDate(),
-    dA.getHours(),
-    dA.getMinutes()
-  );
-  const utcB = Date.UTC(
-    dB.getFullYear(),
-    dB.getMonth(),
-    dB.getDate(),
-    dB.getHours(),
-    dB.getMinutes()
-  );
-  let res = (utcA - utcB) / MS_PER_DAY;
-  period.unit = res;
-  let unit;
-  if (res < 1) {
-    res = Math.ceil(res * 24);
-    res > 1 ? (unit = "hours") : (unit = "hour");
-  } else {
-    res = Math.ceil(res);
-    res > 1 ? (unit = "days") : (unit = "day");
-  }
-  res = `${res} ${unit}`;
-  return res;
-}
-
-const baseURL = "https://api.helium.io/v1";
-const cgQueryURL =
-  "https://api.coingecko.com/api/v3/simple/price?ids=helium&vs_currencies=";
-const explorerURL = "https://explorer.helium.com";
-const gMapsURL = "https://www.google.com/maps?q=";
 
 Object.assign(String.prototype, {
   capitalize() {
@@ -168,22 +109,115 @@ Object.assign(Date.prototype, {
   },
 });
 
-els.dateStart.value = period.sDate.toDatetimeLocal().split(".")[0];
-els.dateEnd.value = period.eDate.toDatetimeLocal().split(".")[0];
+els.dateStart.value = parameters.sDate.toDatetimeLocal().split(".")[0];
+els.dateEnd.value = parameters.eDate.toDatetimeLocal().split(".")[0];
 els.dateStart.min = "2019-08-01T00:00:01";
 els.dateEnd.min = els.dateStart.min;
 els.dateStart.max = els.dateEnd.value.split("T")[0];
 els.dateEnd.max = els.dateStart.max;
-period.eDate = period.eDate.toISOString().split(".")[0];
-period.sDate = period.sDate.toISOString().split(".")[0];
+parameters.eDate = parameters.eDate.toISOString().split(".")[0];
+parameters.sDate = parameters.sDate.toISOString().split(".")[0];
+
+const handler = {
+  set(target, prop, value) {
+    console.log(`Parameter '${prop}' changed: ${target[prop]} -> ${value}`);
+    target[prop] = value;
+    console.log("Parameters:");
+    console.table(parameters);
+    return Reflect.set(target, prop, value);
+  },
+  get(target, key) {
+    if (typeof target[key] === "object" && target[key] !== null) {
+      if (key === "getDate") return target.getDate.bind(target);
+      return new Proxy(target[key], handler);
+    }
+    // return target[key];
+    return Reflect.get(target, key);
+  },
+};
+
+// proxy object to notify changes
+const params = new Proxy(parameters, handler);
+
+const miner = {
+  name: null,
+  id: null,
+  owner: null,
+  added: null,
+  sinceAdded: null,
+  location: null,
+  lat: null,
+  lng: null,
+  scale: null,
+  online: null,
+};
+
+const rewards = {
+  hnt: 0,
+  hntDay: 0,
+  hntHour: 0,
+  fiat: 0,
+  fiatDay: 0,
+  fiatHour: 0,
+};
+
+// 1000 ms x 60 seconds x 60 minutes x 24 hours
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+// a and b are javascript Date objects
+/**
+ *
+ * @param a
+ * @param b
+ */
+function dateDiff(a, b, forRewards) {
+  const dA = new Date(a);
+  const dB = new Date(b);
+  // with Date.UTC you discard the time and time-zone information
+  const utcA = Date.UTC(
+    dA.getFullYear(),
+    dA.getMonth(),
+    dA.getDate(),
+    dA.getHours(),
+    dA.getMinutes()
+  );
+  const utcB = Date.UTC(
+    dB.getFullYear(),
+    dB.getMonth(),
+    dB.getDate(),
+    dB.getHours(),
+    dB.getMinutes()
+  );
+  let res = (utcA - utcB) / MS_PER_DAY;
+  if (forRewards) params.unit = res;
+  let unit;
+  if (res < 1) {
+    res = Math.ceil(res * 24);
+    res > 1 ? (unit = "hours") : (unit = "hour");
+  } else {
+    res = Math.ceil(res);
+    res > 1 ? (unit = "days") : (unit = "day");
+  }
+  res = `${res} ${unit}`;
+  return res;
+}
+
+const baseURL = "https://api.helium.io/v1";
+const cgQueryURL =
+  "https://api.coingecko.com/api/v3/simple/price?ids=helium&vs_currencies=";
+const explorerURL = "https://explorer.helium.com";
+const gMapsURL = "https://www.google.com/maps?q=";
 
 // set into dark mode if detected
 if (
   window.matchMedia &&
   window.matchMedia("(prefers-color-scheme: dark)").matches
 ) {
+  params.dark = true;
   document.body.classList.toggle("dark");
-  els.themeToggler.classList.toggle("fa-sun");
+  els.themeTogglerIcon.classList.remove("fa-moon");
+  els.themeTogglerIcon.classList.add("fa-sun");
+  els.themeTogglerIcon.style.color = "white";
   els.check.classList.toggle("dark");
   els.fiatSelect.classList.toggle("dark");
   els.periodSelect.classList.toggle("dark");
@@ -192,12 +226,21 @@ if (
 // event listeners
 
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("Default parameters:");
+  console.table(parameters);
   checkPrice().then(updateStats).then(updateTotalRewards);
 });
 
 els.themeToggler.addEventListener("click", () => {
   document.body.classList.toggle("dark");
-  els.themeToggler.classList.toggle("fa-sun");
+  const oldClass = els.themeTogglerIcon.classList.contains("fa-moon")
+    ? "fa-moon"
+    : "fa-sun";
+  const newClass = oldClass === "fa-moon" ? "fa-sun" : "fa-moon";
+  const color = oldClass == "fa-moon" ? "white" : "black";
+  els.themeTogglerIcon.classList.replace(oldClass, newClass);
+  params.dark = color === "white" ? true : false;
+  els.themeTogglerIcon.style.color = color;
   els.check.classList.toggle("dark");
   els.fiatSelect.classList.toggle("dark");
   els.periodSelect.classList.toggle("dark");
@@ -237,18 +280,18 @@ els.fiatSelect.addEventListener("change", () => {
 });
 
 els.copyClip.addEventListener("mouseout", () => {
-  els.minerTooltip.innerHTML = "Copy address to clipboard";
+  els.minerTooltip.innerHTML = "Copy miner's address to clipboard";
 });
 
 els.copyClipOwner.addEventListener("mouseout", () => {
-  els.ownerTooltip.innerHTML = "Copy address to clipboard";
+  els.ownerTooltip.innerHTML = "Copy owner's address to clipboard";
 });
 
 els.copyClip.addEventListener("click", () => {
   if (els.minerId.hasAttribute("data-id")) {
     const val = els.minerId.getAttribute("data-id");
     navigator.clipboard.writeText(val);
-    els.minerTooltip.innerHTML = "🤫 Address copied 🤫";
+    els.minerTooltip.innerHTML = "Miner's address copied";
   }
 });
 
@@ -256,7 +299,7 @@ els.copyClipOwner.addEventListener("click", () => {
   if (els.minerId.hasAttribute("data-id")) {
     const val = els.ownerId.getAttribute("data-id");
     navigator.clipboard.writeText(val);
-    els.ownerTooltip.innerHTML = "🤫 Address copied 🤫";
+    els.ownerTooltip.innerHTML = "Owner's address copied";
   }
 });
 
@@ -264,6 +307,7 @@ els.periodSelect.addEventListener("change", () => updatePeriod());
 
 els.customCheck.addEventListener("change", () => {
   const checked = els.customCheck.checked;
+  params.custom = checked;
   if (!checked) {
     els.periodSelect.removeAttribute("disabled");
     els.dateStart.setAttribute("disabled", "");
@@ -405,8 +449,9 @@ function updatePeriod() {
     default:
       break;
   }
-  period.sDate = begin.toISOString().split(".")[0];
-  period.eDate = end.toISOString().split(".")[0];
+  params.period = selected;
+  params.sDate = begin.toISOString().split(".")[0];
+  params.eDate = end.toISOString().split(".")[0];
   els.dateStart.value = begin.toDatetimeLocal().split(".")[0];
   els.dateEnd.value = end.toDatetimeLocal().split(".")[0];
   els.dateStart.max = els.dateEnd.value.split("T")[0];
@@ -431,14 +476,14 @@ function toggleStyle() {
  *
  */
 function displayResults() {
-  els.results.style.display = "";
+  els.results.classList.remove("remove");
 }
 
 /**
  *
  */
 function hideResults() {
-  els.results.style.display = "none";
+  els.results.classList.add("remove");
 }
 
 /**
@@ -459,17 +504,15 @@ function getResponse(response) {
  */
 function showRewards(data) {
   rewards.hnt = data.data.total;
-  rewards.hntDay = rewards.hnt / period.unit;
+  rewards.hntDay = rewards.hnt / params.unit;
   rewards.hntHour = rewards.hntDay / 24;
   els.rewards.innerHTML = rewards.hnt.toFixed(3);
   els.rewardsDay.innerHTML = rewards.hntDay.toFixed(3);
   els.rewardsHour.innerHTML = rewards.hntHour.toFixed(3);
-  const currency = els.fiatSelect.options[els.fiatSelect.selectedIndex].text;
-  rewards.fiatCurrency = currency;
-  rewards.fiat = rewards.hnt * rewards.fiatPrice;
-  rewards.fiatDay = rewards.hntDay * rewards.fiatPrice;
-  rewards.fiatHour = rewards.hntHour * rewards.fiatPrice;
-  els.rewardsFiatLbl.innerHTML = rewards.fiatCurrency;
+  rewards.fiat = rewards.hnt * stats.fiatPrice;
+  rewards.fiatDay = rewards.hntDay * stats.fiatPrice;
+  rewards.fiatHour = rewards.hntHour * stats.fiatPrice;
+  els.rewardsFiatLbl.innerHTML = params.fiatCurrency;
   els.rewardsFiat.innerHTML = rewards.fiat.toFixed(2);
   els.rewardsFiatDay.innerHTML = rewards.fiatDay.toFixed(2);
   els.rewardsFiatHour.innerHTML = rewards.fiatHour.toFixed(2);
@@ -484,9 +527,10 @@ function showRewards(data) {
  * @param data
  */
 async function updatePrice(data) {
-  els.hntPrice.title = rewards.fiatCurrency;
-  rewards.fiatPrice = data.helium[rewards.fiatCurrency.toLowerCase()];
-  els.price.innerHTML = rewards.fiatPrice;
+  els.hntPrice.title = params.fiatCurrency;
+  stats.fiatPrice = data.helium[params.fiatCurrency.toLowerCase()];
+  els.hntPrice.classList.remove("loading");
+  els.hntPrice.innerHTML = stats.fiatPrice;
 }
 
 /**
@@ -505,12 +549,17 @@ function numToShort(number) {
  */
 async function updateTotalRewards() {
   const queryURL = `${baseURL}/rewards/sum?min_time=-1%20day`;
-  await fetch(queryURL)
+  const result = await fetch(queryURL)
     .then(getResponse)
     .then((resp) => {
-      const rewardsShort = numToShort(resp.data.total);
+      stats.rewards24h = resp.data.total;
+      const rewardsShort = numToShort(stats.rewards24h);
+      els.hntRewards.classList.remove("loading");
       els.hntRewards.innerHTML = rewardsShort;
     });
+  console.log("Helium network stats:");
+  console.table(stats);
+  return result;
 }
 
 /**
@@ -518,20 +567,33 @@ async function updateTotalRewards() {
  */
 async function updateStats() {
   const queryURL = `${baseURL}/stats`;
-  await fetch(queryURL)
+  const result = await fetch(queryURL)
     .then(getResponse)
     .then((resp) => {
-      const supplyShort = numToShort(resp.data.token_supply);
-      const totalMinersShort = numToShort(resp.data.counts.hotspots);
-      const totalOnline = numToShort(resp.data.counts.hotspots_online);
-      const totalValidators = numToShort(resp.data.counts.validators);
-      const totalOuis = numToShort(resp.data.counts.ouis);
-      const totalBlocks = numToShort(resp.data.counts.blocks);
-      const totalTransactions = numToShort(resp.data.counts.transactions);
-      const totalChallenges = numToShort(resp.data.counts.challenges);
-      const percOnline = parseInt(
-        (resp.data.counts.hotspots_online * 100) / resp.data.counts.hotspots
-      );
+      stats.supply = resp.data.token_supply;
+      stats.miners = resp.data.counts.hotspots;
+      stats.online = resp.data.counts.hotspots_online;
+      stats.validators = resp.data.counts.validators;
+      stats.OUIs = resp.data.counts.ouis;
+      stats.blocks = resp.data.counts.blocks;
+      stats.transactions = resp.data.counts.transactions;
+      stats.challenges = resp.data.counts.challenges;
+      const supplyShort = numToShort(stats.supply);
+      const totalMinersShort = numToShort(stats.miners);
+      const totalOnline = numToShort(stats.online);
+      const totalValidators = numToShort(stats.validators);
+      const totalOuis = numToShort(stats.OUIs);
+      const totalBlocks = numToShort(stats.blocks);
+      const totalTransactions = numToShort(stats.transactions);
+      const totalChallenges = numToShort(stats.challenges);
+      const percOnline = parseInt((stats.online * 100) / stats.miners);
+      els.hntSupply.classList.remove("loading");
+      els.totalMiners.classList.remove("loading");
+      els.totalValidators.classList.remove("loading");
+      els.totalOuis.classList.remove("loading");
+      els.totalBlocks.classList.remove("loading");
+      els.totalTransactions.classList.remove("loading");
+      els.totalChallenges.classList.remove("loading");
       els.hntSupply.innerHTML = supplyShort;
       els.totalMiners.innerHTML = totalMinersShort;
       els.totalMiners.title = `Online: ${totalOnline} (${percOnline}%)`;
@@ -541,6 +603,7 @@ async function updateStats() {
       els.totalTransactions.innerHTML = totalTransactions;
       els.totalChallenges.innerHTML = totalChallenges;
     });
+  return result;
 }
 
 /**
@@ -548,8 +611,8 @@ async function updateStats() {
  */
 async function checkPrice() {
   const currency = els.fiatSelect.options[els.fiatSelect.selectedIndex].text;
-  rewards.fiatCurrency = currency;
-  const queryURL = `${cgQueryURL}${rewards.fiatCurrency.toLowerCase()}`;
+  if (currency !== params.fiatCurrency) params.fiatCurrency = currency;
+  const queryURL = `${cgQueryURL}${params.fiatCurrency.toLowerCase()}`;
   await fetch(queryURL).then(getResponse).then(updatePrice);
 }
 
@@ -588,7 +651,7 @@ function storeMinerInfo(minerData) {
   )}`;
   els.minerId.innerHTML = hiddenAddress;
   let added = new Date(miner.added);
-  miner.sinceAdded = dateDiff(new Date(), added);
+  miner.sinceAdded = dateDiff(new Date(), added, false);
   added = added.toDateString();
   els.addedDate.innerHTML = `${added} (${miner.sinceAdded})`;
   const hiddenOwner = `${miner.owner.substring(0, 7)}...${miner.owner.substring(
@@ -667,12 +730,16 @@ async function getId(data) {
  * @example
  */
 async function findMiner() {
+  // show selected parameters
+  console.log("Parameters selected:");
+  console.table(parameters);
   // hide results in case not hidden already
   hideResults();
   // toggle "Check" --> "Checking..." loading style
   toggleStyle();
   // parse miner name "First Second Third" to "first-second-third" for API request
   const name = els.minerName.value.trim().toLowerCase().replaceAll(" ", "-");
+  params.name = els.minerName.value;
   // build URL
   const idQuery = `hotspots/name/${name}`;
   const idURL = `${baseURL}/${idQuery}`;
@@ -688,29 +755,26 @@ async function findMiner() {
  */
 async function getRewards(minerId) {
   if (els.customCheck.checked) {
-    period.sDate = new Date(els.dateStart.value);
-    period.sDate = period.sDate.toISOString().split(".")[0];
-    period.eDate = new Date(els.dateEnd.value);
-    period.eDate = period.eDate.toISOString().split(".")[0];
+    params.sDate = new Date(els.dateStart.value);
+    params.sDate = parameters.sDate.toISOString().split(".")[0];
+    params.eDate = new Date(els.dateEnd.value);
+    params.eDate = parameters.eDate.toISOString().split(".")[0];
   } else {
     updatePeriod();
     if (els.periodSelect.value === "max") {
-      period.sDate = miner.added.split(".")[0];
+      params.sDate = miner.added.split(".")[0];
       const max = new Date(miner.added);
       els.dateStart.value = max.toDatetimeLocal().split(".")[0];
     }
   }
-  period.diff = dateDiff(period.eDate, period.sDate);
-  console.log("Period selected:");
-  console.table(period);
-  els.timeInterval.innerHTML = period.diff;
+  params.diff = dateDiff(params.eDate, params.sDate, true);
+  els.timeInterval.innerHTML = params.diff;
   if (els.customCheck.checked || els.periodSelect.value === "max") {
     els.timeInterval.style.visibility = "visible";
   }
-  const epochQuery = `min_time=${period.sDate}.000Z&max_time=${period.eDate}.000Z`;
+  const epochQuery = `min_time=${params.sDate}.000Z&max_time=${params.eDate}.000Z`;
   const rewardsQuery = `hotspots/${minerId}/rewards/sum?${epochQuery}`;
   const rewardsURL = `${baseURL}/${rewardsQuery}`;
-  // const selected = els.periodSelect.value
   await checkPrice();
   const rewards = await fetch(rewardsURL).then(getResponse);
   return rewards;

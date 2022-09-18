@@ -22,7 +22,7 @@
   </script>
 </head>
 
-<body style="visibility: hidden;">
+<body>
   <!--
   Flash Of Unstyled Content (FOUC) fix: <script>0</script> at body's top and
   domReady() trick.
@@ -32,322 +32,320 @@
   stylesheets are not yet loaded this may cause a flash of unstyled content."
   -->
   <script>0</script>
-  <a href="javascript:;" title="Go to the About section">
-    <div id="about-btn" class="fa-solid fa-circle-info"></div>
-  </a>
-  <div id="theme-toggler" title="Toggle light/dark theme" class="fa-solid fa-moon"></div>
-  <a href="javascript:;" title="Go back to the rewards checker">
-    <div id="totop-btn" class="fa-solid fa-arrow-turn-up"></div>
-  </a>
+  <div id="about-btn" class="floating-div" title="Go to the About section">
+    <i id="about-icon" class="floating-icon fa-solid fa-circle-info"></i>
+  </div>
+  <div id="theme-toggler" class="floating-div" title="Toggle light/dark theme">
+    <i id="theme-toggler-icon" class="floating-icon fa-solid fa-moon"></i>
+  </div>
+  <div id="totop-btn" class="floating-div hide" title="Go back to the rewards checker">
+    <i id="totop-icon" class="floating-icon fa-solid fa-arrow-turn-up"></i>
+  </div>
   <div id="container">
     <h1>
-      <h3><span title=" Helium (HNT) Rewards Checker" style="color: #6b70ff;">Helium</span> Rewards <span
-          style="color: #6b70ff;">Checker</span>
+      <h3><span class="accent" title=" Helium (HNT) Rewards Checker">Helium</span> Rewards <span
+          class="accent">Checker</span>
       </h3>
     </h1>
     <div title="Donate HNT to keep this app alive (cover costs, keep it ad and annoyances free, etc.)">
-      <div class="row" style="display: flex;">
-        <div style="display: flex; flex-direction: column;">
-          <div class="fa-solid fa-circle-dollar-to-slot" style="padding-top: 6px;"></div>
-          <div class="fa-solid fa-hand-holding-dollar fa-flip-horizontal"
-            style="margin-top: auto; padding-bottom: 8px;">
+      <div class="row flex">
+        <div class="flex-col">
+          <div class="fa-solid fa-circle-dollar-to-slot top-dollar"></div>
+          <div class="fa-solid fa-hand-holding-dollar fa-flip-horizontal bottom-dollar">
           </div>
         </div>
         <div>
-          <div style="text-align: center;"><b>DONATE</b></div>
+          <div class="center-align"><b>DONATE</b></div>
           <div class="QRcode-frame tooltip">
             <span class="tooltiptext">Scan this QR code with the Helium app to send HNT</span>
             <div id="qrcode"></div>
           </div>
-          <div style="text-align: center;"><b>PLEASE</b></div>
+          <div class="center-align"><b>PLEASE</b></div>
         </div>
-        <div style="display: flex; flex-direction: column;">
-          <div class="fa-solid fa-solid fa-circle-dollar-to-slot" style="padding-top: 6px;"></div>
-          <div class="fa-solid fa-hand-holding-dollar" style="margin-top: auto; padding-bottom: 8px;""></div>
+        <div class="flex-col">
+          <div class="fa-solid fa-solid fa-circle-dollar-to-slot top-dollar"></div>
+          <div class="fa-solid fa-hand-holding-dollar bottom-dollar"></div>
         </div>
       </div>
     </div>
     <form id=" currency-form" autocomplete="off">
-            <div>
-              <label for="fiat-select">Fiat currency</label>
-              <select id="fiat-select" autocomplete="off">
-                <option value="aud">AUD</option>
-                <option value="brl">BRL</option>
-                <option value="cad">CAD</option>
-                <option value="chf">CHF</option>
-                <option value="cny">CNY</option>
-                <option value="eur">EUR</option>
-                <option value="gbp">GBP</option>
-                <option value="hkd">HKD</option>
-                <option value="idr">IDR</option>
-                <option value="ils">ILS</option>
-                <option value="inr">INR</option>
-                <option value="jpy">JPY</option>
-                <option value="krw">KRW</option>
-                <option value="mxn">MXN</option>
-                <option value="rub">RUB</option>
-                <option value="sar">SAR</option>
-                <option value="sgd">SGD</option>
-                <option value="thb">THB</option>
-                <option value="twd">TWD</option>
-                <option value="usd" selected>USD</option>
-              </select>
-            </div>
-            </form>
-            <details id="stats-details" open>
-              <summary title="Helium network (blockchain) stats">
-                <span style="float: left" class="icon"><i id="stats-ico-left" class="fa-solid fa-minus"></i></span>
-                <span style="color:#6b70ff">HNT</span>&nbsp;stats
-                <span style="float: right" class="icon"><i id="stats-ico-right" class="fa-solid fa-minus"></i></span>
-              </summary>
-              <table id="hnt-stats">
-                <tr>
-                  <td>Price</td>
-                  <td>Supply</td>
-                  <td title="Rewards distributed last 24 hours">Rewards</td>
-                </tr>
-                <tr style="color:#6b70ff">
-                  <td id="hnt-price" title="USD"><span id="price"></span></td>
-                  <td id="hnt-supply" title="Token supply"></td>
-                  <td id="hnt-rewards" title="HNT"></td>
-                </tr>
-                <tr>
-                  <td>Miners</td>
-                  <td>Validators</td>
-                  <td>OUIs</td>
-                </tr>
-                <tr style="color:#6b70ff">
-                  <td id="total-miners"></td>
-                  <td id="total-validators"></td>
-                  <td id="total-ouis" title="Organizationally Unique Identifiers, each LoRaWAN Network Server (LNS)">
-                  </td>
-                </tr>
-                <tr>
-                  <td>Blocks</td>
-                  <td>Transactions</td>
-                  <td>Challenges</td>
-                </tr>
-                <tr style="color:#6b70ff">
-                  <td id="total-blocks" title="Total blocks on the blockchain"></td>
-                  <td id="total-transactions" title="Total transactions on the blockchain"></td>
-                  <td id="total-challenges" title="Total challenges (Proof of Coverage or PoC) on the blockchain"></td>
-                </tr>
-              </table>
-            </details>
+      <div>
+        <label for="fiat-select">Fiat currency</label>
+        <select id="fiat-select" autocomplete="off" dir="rtl">
+          <option value="aud">AUD</option>
+          <option value="brl">BRL</option>
+          <option value="cad">CAD</option>
+          <option value="chf">CHF</option>
+          <option value="cny">CNY</option>
+          <option value="eur">EUR</option>
+          <option value="gbp">GBP</option>
+          <option value="hkd">HKD</option>
+          <option value="idr">IDR</option>
+          <option value="ils">ILS</option>
+          <option value="inr">INR</option>
+          <option value="jpy">JPY</option>
+          <option value="krw">KRW</option>
+          <option value="mxn">MXN</option>
+          <option value="rub">RUB</option>
+          <option value="sar">SAR</option>
+          <option value="sgd">SGD</option>
+          <option value="thb">THB</option>
+          <option value="twd">TWD</option>
+          <option value="usd" selected>USD</option>
+        </select>
+      </div>
+    </form>
+    <details id="stats-details" open>
+      <summary title="Helium network (blockchain) stats">
+        <span class="left icon"><i id="stats-ico-left" class="fa-solid fa-minus"></i></span>
+        <span class="accent">HNT</span>&nbsp;stats
+        <span class="right icon"><i id="stats-ico-right" class="fa-solid fa-minus"></i></span>
+      </summary>
+      <table id="hnt-stats">
+        <tr>
+          <td>Price</td>
+          <td>Supply</td>
+          <td title="Rewards distributed last 24 hours">Rewards</td>
+        </tr>
+        <tr class="accent">
+          <td class="loading" id="hnt-price" title="USD"></td>
+          <td class="loading" id="hnt-supply" title="Token supply"></td>
+          <td class="loading" id="hnt-rewards" title="HNT"></td>
+        </tr>
+        <tr>
+          <td>Miners</td>
+          <td>Validators</td>
+          <td>OUIs</td>
+        </tr>
+        <tr class="accent">
+          <td class="loading" id="total-miners"></td>
+          <td class="loading" id="total-validators"></td>
+          <td class="loading" id="total-ouis"
+            title="Organizationally Unique Identifiers, each LoRaWAN Network Server (LNS)">
+          </td>
+        </tr>
+        <tr>
+          <td>Blocks</td>
+          <td>Transactions</td>
+          <td>Challenges</td>
+        </tr>
+        <tr class="accent">
+          <td class="loading" id="total-blocks" title="Total blocks on the blockchain"></td>
+          <td class="loading" id="total-transactions" title="Total transactions on the blockchain"></td>
+          <td class="loading" id="total-challenges"
+            title="Total challenges (Proof of Coverage or PoC) on the blockchain"></td>
+        </tr>
+      </table>
+    </details>
 
-            <form id="check-form" autocomplete="on">
-              <label id="miner-id-label" for="miner-name">Miner name</label>
-              <span class="tooltip">
-                <span id="no-miner-found" class="errortiptext">No miner was found with this name</span>
-                <input id="miner-name" type="text" placeholder="e.g. Happy Banana Woodpecker" maxlength="50"
-                  pattern="^[a-zA-Z]+( [a-zA-Z]+){2}$" autocomplete="on" autofocus required>
-              </span>
-              <div>
-                <label id="mining-time" for="period-select"><i style="transform: scale(-1, 1);"
-                    class="fa-solid fa-trowel"></i>Mined last</label>
-                <select id="period-select" dir="rtl" autocomplete="off">
-                  <option value="1h">1h</option>
-                  <option value="2h">2h</option>
-                  <option value="3h">3h</option>
-                  <option value="6h">6h</option>
-                  <option value="12h">12h</option>
-                  <option value="24h" selected>24h</option>
-                  <option value="2d">2d</option>
-                  <option value="3d">3d</option>
-                  <option value="7d">7d</option>
-                  <option value="14d">14d</option>
-                  <option value="30d">30d</option>
-                  <option value="60d">60d</option>
-                  <option value="90d">90d</option>
-                  <option value="180d">180d</option>
-                  <option value="1y">1y</option>
-                  <option value="2y">2y</option>
-                  <option value="max">max</option>
-                </select>
-              </div>
-              <div style="text-align: left;">
-                <input id="custom-check" type="checkbox" autocomplete="off">
-                <label id="custom-label" for="custom-check">Custom period: <span id="time-interval"
-                    style="visibility: hidden;">1 day</span></label>
-              </div>
-              <div id="start-block">
-                <label class="dates-icons" title="Start datetime" for="date-start"><i
-                    class="fa-solid fa-plane-departure"></i></label>
-                <input title="Start datetime" id="date-start" type="datetime-local" step="any" required disabled>
-                <label class="dates-icons mirrored" title="Start datetime" for="date-start"><i
-                    class="fa-solid fa-plane-departure"></i></label>
-              </div>
-              <div id="end-block">
-                <label class="dates-icons" title=" End datetime" for="date-end"><i
-                    class="fa-solid fa-plane-arrival"></i></label>
-                <input title="End datetime" id="date-end" type="datetime-local" step="any" required disabled>
-                <label class="dates-icons mirrored" title=" End datetime" for="date-end"><i
-                    class="fa-solid fa-plane-arrival"></i></label>
-              </div>
-              <button id="check" type="submit">Check</button>
-            </form>
-            <div id="loader"></div>
-            <div id="results" style="display: none;">
-              <table id="rewards-table">
-                <tr>
-                  <th><i class="fa-solid fa-sack-dollar"></i></th>
-                  <th>Total</th>
-                  <th>Per day</th>
-                  <th>Per hour</th>
-                </tr>
-                <tr style="color:#6b70ff">
-                  <td><b>HNT</b></td>
-                  <td id="rewards"></td>
-                  <td id="rewards-day"></td>
-                  <td id="rewards-hour"></td>
-                </tr>
-                <tr>
-                  <td id="rewards-fiat-lbl"><b>USD</b></td>
-                  <td id="rewards-fiat"></td>
-                  <td id="rewards-fiat-day"></td>
-                  <td id="rewards-fiat-hour"></td>
-                </tr>
-              </table>
-              <details id="miner-details" open>
-                <summary title="Helium network (blockchain) stats">
-                  <span style="float: left" class="icon"><i id="miner-ico-left" class="fa-solid fa-minus"></i></span>
-                  <span id="info-th-left"><i class="fa-solid fa-tower-broadcast"></i></span>
-                  <span style="color:#6b70ff">Miner Info</span>
-                  <span id="info-th-right"><i class="fa-solid fa-tower-broadcast"></i></span>
-                  <span style="float: right" class="icon"><i id="miner-ico-right" class="fa-solid fa-minus"></i></span>
-                </summary>
-                <table id="miner-info-content">
-                  <tr>
-                    <td title="Miner's address" id="id-icon"><i class="fa-solid fa-at"></i></td>
-                    <td><a id="miner-id" title="See the miner on the Helium explorer" target="_blank"
-                        rel="noopener">🤔</a>
-                    </td>
-                    <td id="copy-clip" class="tooltip">
-                      <span class="tooltiptext" id="miner-tooltip">Copy address to clipboard</span>
-                      <i class="fa-solid fa-clipboard-list"></i>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td title="Owner's address" id="icon-owner"><i class="fa-solid fa-user"></i></td>
-                    <td><a id="owner-id" title="See the owner on the Helium explorer" target="_blank"
-                        rel="noopener">🤔</a>
-                    </td>
-                    <td id="copy-clip-owner" class="tooltip">
-                      <span class="tooltiptext" id="owner-tooltip">Copy address to clipboard</span>
-                      <i class="fa-solid fa-clipboard-list"></i>
-                    </td>
-                  </tr>
-                  <tr title="Added date">
-                    <td><i class="fa-solid fa-cake-candles"></i></td>
-                    <td id="added-date">🤔</td>
-                    <td><i class="fa-solid fa-cake-candles"></i></td>
-                  </tr>
-                  <tr title="Location">
-                    <td><i class="fa-solid fa-location-dot"></i></td>
-                    <td><a target="_blank" id="location" href="#" rel="noopener"></a></td>
-                    <td><i class="fa-solid fa-location-dot"></i></td>
-                  </tr>
-                  <tr title="Transmit scale">
-                    <td><i class="fa-solid fa-scale-balanced"></i></td>
-                    <td id="scale"></td>
-                    <td><i class="fa-solid fa-scale-balanced"></i></td>
-                  </tr>
-                </table>
-              </details>
-            </div>
+    <form id="check-form" autocomplete="on">
+      <label id="miner-id-label" for="miner-name">Miner name</label>
+      <span class="tooltip">
+        <span id="no-miner-found" class="errortiptext">No miner was found with this name</span>
+        <input id="miner-name" type="text" placeholder="e.g. Happy Banana Woodpecker" maxlength="50"
+          pattern="^[a-zA-Z]+( [a-zA-Z]+){2}$" autocomplete="on" autofocus required>
+      </span>
+      <div>
+        <label id="mining-time" for="period-select">
+          <i class="flip" class="fa-solid fa-coins"></i>Mined
+          last</label>
+        <select id="period-select" dir="rtl" autocomplete="off">
+          <option value="1h">1h</option>
+          <option value="2h">2h</option>
+          <option value="3h">3h</option>
+          <option value="6h">6h</option>
+          <option value="12h">12h</option>
+          <option value="24h" selected>24h</option>
+          <option value="2d">2d</option>
+          <option value="3d">3d</option>
+          <option value="7d">7d</option>
+          <option value="14d">14d</option>
+          <option value="30d">30d</option>
+          <option value="60d">60d</option>
+          <option value="90d">90d</option>
+          <option value="180d">180d</option>
+          <option value="1y">1y</option>
+          <option value="2y">2y</option>
+          <option value="max">max</option>
+        </select>
+      </div>
+      <div class="left-align">
+        <input id="custom-check" type="checkbox" autocomplete="off">
+        <label id="custom-label" for="custom-check">Custom period: <span id="time-interval" class="hide">1
+            day</span></label>
+      </div>
+      <div id="start-block">
+        <label class="dates-icons" title="Start datetime" for="date-start"><i
+            class="fa-solid fa-plane-departure"></i></label>
+        <input title="Start datetime" id="date-start" type="datetime-local" step="any" class="default-font" required
+          disabled>
+        <label class="dates-icons mirrored" title="Start datetime" for="date-start"><i
+            class="fa-solid fa-plane-departure"></i></label>
+      </div>
+      <div id="end-block">
+        <label class="dates-icons" title=" End datetime" for="date-end"><i
+            class="fa-solid fa-plane-arrival"></i></label>
+        <input title="End datetime" id="date-end" type="datetime-local" step="any" class="default-font" required
+          disabled>
+        <label class="dates-icons mirrored" title=" End datetime" for="date-end"><i
+            class="fa-solid fa-plane-arrival"></i></label>
+      </div>
+      <button id="check" type="submit">Check</button>
+    </form>
+    <div id="loader"></div>
+    <div id="results" class="remove">
+      <table id="rewards-table">
+        <tr>
+          <th><i class="fa-solid fa-sack-dollar"></i></th>
+          <th>Total</th>
+          <th>Per day</th>
+          <th>Per hour</th>
+        </tr>
+        <tr class="accent">
+          <td><b>HNT</b></td>
+          <td id="rewards"></td>
+          <td id="rewards-day"></td>
+          <td id="rewards-hour"></td>
+        </tr>
+        <tr>
+          <td id="rewards-fiat-lbl"><b>USD</b></td>
+          <td id="rewards-fiat"></td>
+          <td id="rewards-fiat-day"></td>
+          <td id="rewards-fiat-hour"></td>
+        </tr>
+      </table>
+      <details id="miner-details" open>
+        <summary title="Helium network (blockchain) stats">
+          <span class="left icon"><i id="miner-ico-left" class="fa-solid fa-minus"></i></span>
+          <span id="info-th-left"><i class="fa-solid fa-tower-broadcast"></i></span>
+          <span>Miner info</span>
+          <span id="info-th-right"><i class="fa-solid fa-tower-broadcast"></i></span>
+          <span class="right icon"><i id="miner-ico-right" class="fa-solid fa-minus"></i></span>
+        </summary>
+        <table id="miner-info-content">
+          <tr>
+            <td title="Miner's address" id="id-icon"><i class="fa-solid fa-at"></i></td>
+            <td><a id="miner-id" title="See the miner on the Helium explorer" target="_blank" rel="noopener"></a>
+            </td>
+            <td id="copy-clip" class="tooltip">
+              <span class="tooltiptext" id="miner-tooltip">Copy miner's address to clipboard</span>
+              <i class="fa-solid fa-clipboard-list"></i>
+            </td>
+          </tr>
+          <tr>
+            <td title="Owner's address" id="icon-owner"><i class="fa-solid fa-user"></i></td>
+            <td><a id="owner-id" title="See the owner on the Helium explorer" target="_blank" rel="noopener"></a>
+            </td>
+            <td id="copy-clip-owner" class="tooltip">
+              <span class="tooltiptext" id="owner-tooltip">Copy owner's address to clipboard</span>
+              <i class="fa-solid fa-clipboard-list"></i>
+            </td>
+          </tr>
+          <tr title="Added date">
+            <td><i class="fa-solid fa-cake-candles"></i></td>
+            <td id="added-date"></td>
+            <td><i class="fa-solid fa-cake-candles"></i></td>
+          </tr>
+          <tr title="Location">
+            <td><i class="fa-solid fa-location-dot"></i></td>
+            <td><a target="_blank" id="location" href="#" rel="noopener"></a></td>
+            <td><i class="fa-solid fa-location-dot"></i></td>
+          </tr>
+          <tr title="Transmit scale">
+            <td><i class="fa-solid fa-scale-balanced"></i></td>
+            <td id="scale"></td>
+            <td><i class="fa-solid fa-scale-balanced"></i></td>
+          </tr>
+        </table>
+      </details>
+    </div>
+  </div>
+  <div id="about-container">
+    <h3 title="About this app">
+      About <span title="HNT" class="accent">Helium</span> Rewards <span class="accent">Checker</span>
+    </h3>
+    <div title="Donate HNT to keep this app alive (cover costs, keep it ad and annoyances free, etc.)">
+      <div class="row flex">
+        <div class="flex-col">
+          <div class="fa-solid fa-circle-dollar-to-slot top-dollar"></div>
+          <div class="fa-solid fa-hand-holding-dollar fa-flip-horizontal bottom-dollar">
           </div>
-          <div id="about-container">
-            <h3 title="About this app">
-              About <span title="HNT" style="color: #6b70ff;">Helium</span> Rewards <span
-                style="color: #6b70ff;">Checker</span>
-            </h3>
-            <div title="Donate HNT to keep this app alive (cover costs, keep it ad and annoyances free, etc.)">
-              <div class="row" style="display: flex;">
-                <div style="display: flex; flex-direction: column;">
-                  <div class="fa-solid fa-circle-dollar-to-slot" style="padding-top: 6px;"></div>
-                  <div class="fa-solid fa-hand-holding-dollar fa-flip-horizontal"
-                    style="margin-top: auto; padding-bottom: 8px;">
-                  </div>
-                </div>
-                <div>
-                  <div style="text-align: center;"><b>PLEASE</b></div>
-                  <div class="QRcode-frame tooltip">
-                    <span class="tooltiptext">Scan this QR code with the Helium app to send HNT</span>
-                    <div id="qrcode"></div>
-                  </div>
-                  <div style="text-align: center;"><b>DONATE</b></div>
-                </div>
-                <div style="display: flex; flex-direction: column;">
-                  <div class="fa-solid fa-solid fa-circle-dollar-to-slot" style="padding-top: 6px;"></div>
-                  <div class="fa-solid fa-hand-holding-dollar" style="margin-top: auto; padding-bottom: 8px;""></div>
-              </div>
-            </div>
+        </div>
+        <div>
+          <div class="center-align"><b>PLEASE</b></div>
+          <div class="QRcode-frame tooltip">
+            <span class="tooltiptext">Scan this QR code with the Helium app to send HNT</span>
+            <div id="qrcode"></div>
           </div>
-          <p>
-            <span title=" HNT" style="color: #6b70ff;">Helium</span> Rewards <span
-                      style="color: #6b70ff;">Checker</span>
-                    is a Helium community app built to check the HNT rewards of any miner of the <a target="_blank"
-                      rel="noopener" href="https://www.helium.com/">Helium Blockchain</a> using a predefined time period
-                    or a custom one.
-                    It
-                    also allows you to see the value of the rewards in different fiat currencies and other relevant
-                    information (total rewards since a miner was added, date it was added, average rewards per day /
-                    hour within the selected period, miner's and owner's address, location, etc.).
-                    <p>Another reason that brought me to develop this tool is to provide realtime information about the
-                      HNT
-                      rewards. The <a target="_blank" rel="noopener" href="https://explorer.helium.com/">Helium
-                        Explorer</a> and the
-                      Helium Hotspot App (to this
-                      date) are
-                      not only quite slow. They also do not give you realtime information (at least not the most
-                      up-to-date from its blockchain).
-                    </p>
-                    <p>
-                      Essentially this webapp uses <a target="_blank" rel="noopener"
-                        href="https://docs.helium.com/api/blockchain/introduction/">Helium's Blockchain API</a> to
-                      retrieve the
-                      desired information directly from the <a target="_blank" rel="noopener"
-                        href="https://www.helium.com/">Helium's
-                        Blockchain</a>,
-                      combined with the current <a target="_blank" rel="noopener"
-                        href="https://www.coingecko.com/en/coins/helium">HNT
-                        fiat
-                        value</a> via <a target="_blank" rel="noopener"
-                        href="https://www.coingecko.com/en/api/documentation">Coingecko's
-                        API</a>. In case you have any suggestions or find any bugs, please write me at:
-                      <br>
-                      <span style="text-align: center; color: #6b70ff">soacmaster[at]proton.me</span>
-                    </p>
-                    <p>
-                      Last but not least, keep in mind that this app is free (and it wants to stay as such: no ads, no
-                      annoyances). Currently this site is having around 1000 unique visits a month. If on average every
-                      user would donate at least 0.1 HNT, I could not only cover the hosting, domain, developing and
-                      mantaining
-                      costs, but it would also allow me to improve it a lot and develop an Android and iOS app out of
-                      it.
-                      So, if you think this app is useful, please use the QR code to
-                      donate HNT to support it.
-                    </p>
-                  </div>
-                  <!-- Simple modal dialog containing a form -->
-                  <dialog id="miner-dialog">
-                    <form id="miner-selector" method="dialog">
-                      <span id="miner-wildcard" style="color: #6b70ff">Bla Bla Bla</span><br>exists in different
-                      locations.
-                      <br>Please select the desired one.
-                      <p><label>Location:
-                          <select id="miner-locations">
-                            <!-- automatically generated options
+          <div class="center-align"><b>DONATE</b></div>
+        </div>
+        <div class="flex-col">
+          <div class="fa-solid fa-solid fa-circle-dollar-to-slot top-dollar"></div>
+          <div class="fa-solid fa-hand-holding-dollar bottom-dollar"></div>
+        </div>
+      </div>
+    </div>
+    <p>
+      <span title=" HNT" class="accent">Helium</span> Rewards <span class="accent">Checker</span>
+      is a Helium community app built to check the HNT rewards of any miner of the <a target="_blank" rel="noopener"
+        href="https://www.helium.com/">Helium Blockchain</a> using a predefined time period
+      or a custom one.
+      It
+      also allows you to see the value of the rewards in different fiat currencies and other relevant
+      information (total rewards since a miner was added, date it was added, average rewards per day /
+      hour within the selected period, miner's and owner's address, location, etc.).
+    <p>Another reason that brought me to develop this tool is to provide realtime information about the
+      HNT
+      rewards. The <a target="_blank" rel="noopener" href="https://explorer.helium.com/">Helium
+        Explorer</a> and the
+      Helium Hotspot App (to this
+      date) are
+      not only quite slow. They also do not give you realtime information (at least not the most
+      up-to-date from its blockchain).
+    </p>
+    <p>
+      Essentially this webapp uses <a target="_blank" rel="noopener"
+        href="https://docs.helium.com/api/blockchain/introduction/">Helium's Blockchain API</a> to
+      retrieve the
+      desired information directly from the <a target="_blank" rel="noopener" href="https://www.helium.com/">Helium's
+        Blockchain</a>,
+      combined with the current <a target="_blank" rel="noopener" href="https://www.coingecko.com/en/coins/helium">HNT
+        fiat
+        value</a> via <a target="_blank" rel="noopener"
+        href="https://www.coingecko.com/en/api/documentation">Coingecko's
+        API</a>. In case you have any suggestions or find any bugs, please write me at <span
+        class="accent">soacmaster[at]proton.me</span>
+    </p>
+    <p>
+      Last but not least, keep in mind that this app is free (and it wants to stay as such: no ads, no
+      annoyances). Currently this site is having around 1000 unique visits a month. If on average every
+      user would donate at least 0.1 HNT, I could not only cover the hosting, domain, developing and
+      mantaining
+      costs, but it would also allow me to improve it a lot and develop an Android and iOS app out of
+      it.
+      So, if you think this app is useful, please use the QR code to
+      donate HNT to support it.
+    </p>
+  </div>
+  <!-- Simple modal dialog containing a form -->
+  <dialog id="miner-dialog">
+    <form id="miner-selector" method="dialog">
+      <span id="miner-wildcard" class="accent">Bla Bla Bla</span><br>exists in different
+      locations.
+      <br>Please select the desired one.
+      <p><label>Location:
+          <select id="miner-locations">
+            <!-- automatically generated options
                             <option value="default">Choose…</option>
                             <option>City (Country)</option>
                           -->
-                          </select>
-                        </label></p>
-                      <div>
-                        <button id="confirm-btn" disabled>Confirm</button>
-                      </div>
-                    </form>
-                  </dialog>
+          </select>
+        </label></p>
+      <div>
+        <button id="confirm-btn" disabled>Confirm</button>
+      </div>
+    </form>
+  </dialog>
 
 </body>
 

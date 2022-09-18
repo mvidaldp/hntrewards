@@ -6,8 +6,14 @@ body {
 }
 
 body {
+  visibility: hidden;
   font-size: 1.25rem;
   font-family: "Noto Sans", sans-serif;
+}
+
+::selection {
+  background: #b4d5ff;
+  text-shadow: none;
 }
 
 body {
@@ -27,19 +33,12 @@ body.dark {
   background-image: url("background.svg");
 }
 
-/* @media (prefers-color-scheme: dark) {
-  body {
-    color: white;
-    text-shadow: -0.5px -0.5px 0 #000, 0.5px -0.5px 0 #000, -0.5px 0.5px 0 #000,
-      1px 1px 0 #000;
-    background: #10192d;
-    background-attachment: fixed;
-    background-image: url("background.svg");
-  }
-} */
-
 p {
   font-size: 1rem;
+}
+
+dialog {
+  text-shadow: none;
 }
 
 br {
@@ -90,6 +89,7 @@ th {
   align-items: center;
   align-content: center;
   vertical-align: middle;
+  text-align: justify;
 }
 
 label {
@@ -122,14 +122,15 @@ a:focus {
 #hnt-stats td,
 #hnt-stats th {
   padding: 0px 0px 0px 0px;
+  width: 105.667px;
+  height: 22px;
 }
 
 #hnt-stats {
   font-size: 1rem;
-}
-
-#rewards {
-  color: #6b70ff;
+  table-layout: fixed;
+  width: 325px;
+  margin: 0 auto;
 }
 
 #miner-name {
@@ -176,6 +177,7 @@ button {
   color: white;
   border: 1px solid #a8ecd2;
   margin: 6px 6px;
+  cursor: pointer;
 }
 
 select {
@@ -244,7 +246,7 @@ input {
 .errortiptext {
   font-size: 0.75rem;
   visibility: hidden;
-  width: 200px;
+  width: 100px;
   background-color: #555;
   color: #fff;
   text-align: center;
@@ -254,7 +256,7 @@ input {
   z-index: 1;
   bottom: 100%;
   left: 50%;
-  margin-left: -105px;
+  margin-left: -55px;
   opacity: 0;
   transition: opacity 0.3s;
   text-shadow: None;
@@ -277,39 +279,55 @@ input {
   opacity: 1;
 }
 
-/* Toggle top buttons */
-#theme-toggler {
+.floating-div {
   z-index: 9999;
   position: fixed;
-  top: 10px;
-  right: 10px;
-  padding: 15px 15px;
-  font-size: 25px;
+  font-size: 1.5rem;
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
   border-radius: 5px;
+  background: rgba(255, 255, 255, 0.15);
+  width: 45px;
+  height: 45px;
+  text-align: center;
+  display: table;
+}
+
+.floating-icon {
+  display: table-cell;
+  vertical-align: middle;
+  color: #6b70ff;
+  cursor: pointer;
+}
+
+#theme-toggler-icon {
+  color: black;
+  text-shadow: unset;
+}
+
+#theme-toggler-icon,
+#about-icon,
+#totop-icon {
+  text-shadow: none;
+}
+
+.accent {
+  color: #6b70ff;
+}
+
+/* Toggle top buttons */
+#theme-toggler {
+  top: 10px;
+  right: 10px;
 }
 
 #about-btn {
-  z-index: 9999;
-  position: fixed;
   top: 10px;
   left: 10px;
-  padding: 15px 15px;
-  font-size: 25px;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
-  border-radius: 5px;
 }
 
 #totop-btn {
-  z-index: 9999;
-  position: fixed;
   bottom: 10px;
   right: 10px;
-  padding: 15px 15px;
-  font-size: 25px;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
-  border-radius: 5px;
-  visibility: hidden;
 }
 
 #qrcode {
@@ -320,7 +338,6 @@ input {
 
 /* collapsible */
 details {
-  user-select: none;
   text-align: center;
 }
 
@@ -366,4 +383,86 @@ br {
   display: block;
   margin: 0 0 0 0;
   padding: 0 0 0 0;
+}
+
+.center-align {
+  text-align: center;
+}
+
+.left-align {
+  text-align: left;
+}
+
+.center {
+  margin: 0 auto;
+}
+
+.left {
+  float: left;
+}
+
+.right {
+  float: right;
+}
+
+.hide {
+  visibility: hidden;
+}
+
+.remove {
+  display: none;
+}
+
+.flip {
+  transform: scale(-1, 1);
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.top-dollar {
+  padding-top: 6px;
+}
+
+.bottom-dollar {
+  margin-top: auto;
+  padding-bottom: 8px;
+}
+
+.default-font {
+  font-family: "Noto Sans", sans-serif;
+}
+
+.loading {
+  position: relative;
+  background: rgba(193, 199, 212, 0.34);
+}
+
+.loading:after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  transform: translateX(-100px);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: loading 0.8s infinite;
+}
+
+@keyframes loading {
+  100% {
+    transform: translateX(100%);
+  }
 }
