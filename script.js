@@ -3,27 +3,27 @@
  * @author m4573Rm4c0 <soacmaster@proton.me>
  */
 // TODO:
-// - Include loading transition before updating price manually
-// - Show Witnesses and Witnessed last 5 days (interval possible)
-// - Show challenges
-// - Show total hostspots around a certain radius (Km) (allow to pick radius/hex)
-// - Show AVG challenges / miner last 24 hours
-// - Show AVG rewards whole network (total miners / rewards)
-// Debug and fix promises chain:
-// - Simplify and organize promises chain properly
-// - Check when synchronous code is needed and when not.
-// - Return Promise (async) or Throw error (sync) accordingly
-//  stepOne()
-//    .then(stepTwo, handleErrorOne)
-//    .then(stepThree, handleErrorTwo)
-//    .then(null, handleErrorThree)
-// - Make sure promises chain work! Test all steps and scenarios
+// - Make time-interval calculation update at each date change, like the date inputs
+// - Update period, unit and diff parameters before showing parameters selected (show after parameter bla changed: list)
+// - Change alert for tooltip about wrong period (smaller than 1 hour) selected
+// - Prevent querying (disable check button) if wrong period
+// - Set properly max and minimum date ranges (start and end) automatically, prevent queries in the future
+// - Fix id tooltips triggering for the whole tooltip area instead of just the icon
+// - Time queries/steps/functions, show total
+// - New features:
+//  - Show Witnesses and Witnessed last 5 days (interval possible)
+//  - Show challenges
+//  - Show total hostspots around a certain radius (Km) (allow to pick radius/hex)
+//  - Show AVG challenges / miner last 24 hours
+//  - Show AVG rewards whole network (total miners / rewards)
+// - Code cleanness:
+//  - document functions
+//  - Simplify and organize functions and logic on main script
+//  - Check when synchronous code is needed and when not
 // - Also important:
 //  - Improve SEO stuff (check recommendations from online analysis)
 //  - Share it in reddit, discord, telegram, and medium (create post)
 //  - Ask Uri about how to improve design/UI
-//  - document functions
-//  - organize and simplify code
 //  - add helium miners/retailers or crypto ads
 // - Extra:
 //  - Show graph/sparkline of selected period: https://www.chartjs.org/docs/latest/
@@ -54,8 +54,6 @@ const stats = {
   challenges: null,
 };
 
-const now = new Date();
-
 // original object
 const parameters = {
   dark: false,
@@ -63,8 +61,8 @@ const parameters = {
   name: null,
   period: "24h",
   custom: false,
-  sDate: now,
-  eDate: new Date(now.getDate() - 1),
+  sDate: new Date(new Date().getTime() - 24 * 60 * 60 * 1000),
+  eDate: new Date(),
   unit: null,
   diff: null,
 };
@@ -122,8 +120,6 @@ const handler = {
   set(target, prop, value) {
     console.log(`Parameter '${prop}' changed: ${target[prop]} -> ${value}`);
     target[prop] = value;
-    console.log("Parameters:");
-    console.table(parameters);
     return Reflect.set(target, prop, value);
   },
   get(target, key) {
@@ -228,7 +224,10 @@ if (
 document.addEventListener("DOMContentLoaded", () => {
   console.log("Default parameters:");
   console.table(parameters);
-  checkPrice().then(updateStats).then(updateTotalRewards);
+  checkPrice()
+    .then(updateStats)
+    .then(updateTotalRewards)
+    .catch((error) => handleError(error));
 });
 
 els.themeToggler.addEventListener("click", () => {
@@ -259,11 +258,11 @@ function scrollFunction() {
     window.pageYOffset > 20 ||
     window.scrollY > 20
   ) {
-    els.totopBtn.style.visibility = "visible";
-    els.aboutBtn.style.visibility = "hidden";
+    els.totopBtn.classList.remove("hide");
+    els.aboutBtn.classList.add("hide");
   } else {
-    els.totopBtn.style.visibility = "hidden";
-    els.aboutBtn.style.visibility = "visible";
+    els.totopBtn.classList.add("hide");
+    els.aboutBtn.classList.remove("hide");
   }
 }
 
@@ -305,7 +304,29 @@ els.copyClipOwner.addEventListener("click", () => {
 
 els.periodSelect.addEventListener("change", () => updatePeriod());
 
+els.dateStart.addEventListener("change", () => checkHoursDiff());
+els.dateEnd.addEventListener("change", () => checkHoursDiff());
+
+function checkHoursDiff() {
+  const msInHour = 1000 * 60 * 60;
+  // turn start and end dates from value to date object
+  let start = new Date(els.dateStart.value);
+  let end = new Date(els.dateEnd.value);
+  // turn date in milliseconds
+  start = start.getTime();
+  end = end.getTime();
+  // compute the difference in hours
+  const res = (end - start) / msInHour;
+  if (res < 1) {
+    alert(
+      "The time difference between end end start periods cannot be smaller than 1 hour!"
+    );
+    els.check.setAttribute("disabled", "");
+  } else els.check.removeAttribute("disabled");
+}
+
 els.customCheck.addEventListener("change", () => {
+  els.timeInterval.classList.toggle("accent");
   const checked = els.customCheck.checked;
   params.custom = checked;
   if (!checked) {
@@ -321,7 +342,7 @@ els.customCheck.addEventListener("change", () => {
   els.endBlock.classList.toggle("colored");
 });
 
-els.checkForm.addEventListener("submit", () => scriptFlow());
+els.checkForm.addEventListener("submit", () => getMinerInfo());
 
 // update max date value for datetime-local input elements (start and end) in
 // case the page wasn't updated in a while (current date changed)
@@ -463,9 +484,6 @@ function updatePeriod() {
  *
  */
 function toggleStyle() {
-  if (!(els.customCheck.checked || els.periodSelect.value === "max")) {
-    els.timeInterval.style.visibility = "hidden";
-  }
   els.loader.style.display = els.check.innerHTML === "Check" ? "block" : "none";
   els.check.innerHTML =
     els.check.innerHTML === "Check" ? "Checking..." : "Check";
@@ -495,31 +513,6 @@ function getResponse(response) {
   if (response.status >= 200 && response.status < 300)
     return Promise.resolve(response.json());
   else return Promise.reject(new Error(response.statusText));
-}
-
-/**
- *
- * @param data
- * @example
- */
-function showRewards(data) {
-  rewards.hnt = data.data.total;
-  rewards.hntDay = rewards.hnt / params.unit;
-  rewards.hntHour = rewards.hntDay / 24;
-  els.rewards.innerHTML = rewards.hnt.toFixed(3);
-  els.rewardsDay.innerHTML = rewards.hntDay.toFixed(3);
-  els.rewardsHour.innerHTML = rewards.hntHour.toFixed(3);
-  rewards.fiat = rewards.hnt * stats.fiatPrice;
-  rewards.fiatDay = rewards.hntDay * stats.fiatPrice;
-  rewards.fiatHour = rewards.hntHour * stats.fiatPrice;
-  els.rewardsFiatLbl.innerHTML = params.fiatCurrency;
-  els.rewardsFiat.innerHTML = rewards.fiat.toFixed(2);
-  els.rewardsFiatDay.innerHTML = rewards.fiatDay.toFixed(2);
-  els.rewardsFiatHour.innerHTML = rewards.fiatHour.toFixed(2);
-  console.log("Rewards:");
-  console.table(rewards);
-  toggleStyle();
-  displayResults();
 }
 
 /**
@@ -610,6 +603,8 @@ async function updateStats() {
  *
  */
 async function checkPrice() {
+  els.hntPrice.classList.add("loading");
+  els.hntPrice.innerHTML = "";
   const currency = els.fiatSelect.options[els.fiatSelect.selectedIndex].text;
   if (currency !== params.fiatCurrency) params.fiatCurrency = currency;
   const queryURL = `${cgQueryURL}${params.fiatCurrency.toLowerCase()}`;
@@ -668,84 +663,67 @@ function storeMinerInfo(minerData) {
 
 /**
  *
- * @param data
  * @example
  */
-async function getId(data) {
-  const found = data.data.length > 0;
-  if (found) {
-    els.minerWildcard.innerHTML = els.minerName.value;
-    if (data.data.length > 1) {
-      els.minerLocations.innerHTML = '<option value="default">Choose…</option>';
-      const minerInfo = data.data;
-      for (let i = 0; i < minerInfo.length; i++) {
-        const cityCountry = `${minerInfo[i].geocode.long_city} (${minerInfo[i].geocode.long_country})`;
-        els.minerLocations.innerHTML += `<option value="${i}">${cityCountry}</option>`;
-      }
-      els.minerLocations.value;
-
-      // If a browser doesn't support the dialog, then hide the dialog contents by default.
-      if (typeof els.minerDialog.showModal !== "function") {
-        els.minerDialog.hidden = true;
-        alert(
-          "Sorry, the <dialog> API is not supported by this browser. Please update your browser."
-        );
-      } else {
-        els.confirmBtn.setAttribute("disabled", "");
-        els.minerDialog.showModal();
-        disableScroll();
-        return new Promise((resolve) => {
-          // "Confirm" button of form triggers "close" on dialog because of [method="dialog"]
-          els.minerDialog.addEventListener("close", () => {
-            els.minerDialog.removeEventListener("close", () => {});
-            if (els.minerLocations.value !== "default") {
-              enableScroll();
-              storeMinerInfo(data.data[els.minerLocations.value]);
-              resolve(miner.id);
-            } else {
-              els.minerDialog.removeAttribute("open");
-              console.log("Miner not selected");
-              getId(data);
-            }
-          });
-        });
-      }
-    } else {
-      storeMinerInfo(data.data[0]);
-      return Promise.resolve(miner.id);
-    }
-  } else {
-    els.noMinerFound.style.visibility = "visible";
-    els.noMinerFound.style.opacity = 1;
-    setTimeout(() => {
-      els.noMinerFound.style.opacity = 0;
-      els.noMinerFound.style.visibility = "hidden";
-    }, 6000);
-    return Promise.reject(new Error("Miner not found"));
-  }
-}
-
-/**
- *
- * @example
- */
-async function findMiner() {
-  // show selected parameters
-  console.log("Parameters selected:");
-  console.table(parameters);
-  // hide results in case not hidden already
-  hideResults();
-  // toggle "Check" --> "Checking..." loading style
-  toggleStyle();
+async function getMinerId() {
   // parse miner name "First Second Third" to "first-second-third" for API request
+  if (els.minerName.value.trim() !== els.minerName.value) {
+    els.minerName.value = els.minerName.value.trim();
+  }
   const name = els.minerName.value.trim().toLowerCase().replaceAll(" ", "-");
   params.name = els.minerName.value;
+
   // build URL
   const idQuery = `hotspots/name/${name}`;
   const idURL = `${baseURL}/${idQuery}`;
+
   // API request
-  const minId = await fetch(idURL).then(getResponse);
-  return minId;
+  const minerData = await fetch(idURL)
+    .then(getResponse)
+    .catch((error) => Promise.reject(error));
+  const found = minerData.data.length > 0;
+  if (!found) return Promise.reject(new Error("Miner not found"));
+
+  els.minerWildcard.innerHTML = els.minerName.value;
+  if (minerData.data.length > 1) {
+    els.minerLocations.innerHTML = '<option value="default">Choose…</option>';
+    const minerInfo = minerData.data;
+    for (let i = 0; i < minerInfo.length; i++) {
+      const cityCountry = `${minerInfo[i].geocode.long_city} (${minerInfo[i].geocode.long_country})`;
+      els.minerLocations.innerHTML += `<option value="${i}">${cityCountry}</option>`;
+    }
+    els.minerLocations.value;
+
+    // If a browser doesn't support the dialog, then hide the dialog contents by default.
+    if (typeof els.minerDialog.showModal !== "function") {
+      els.minerDialog.hidden = true;
+      alert(
+        "Sorry, the <dialog> API is not supported by this browser. Please update your browser."
+      );
+    } else {
+      els.confirmBtn.setAttribute("disabled", "");
+      els.minerDialog.showModal();
+      disableScroll();
+      return new Promise((resolve) => {
+        // "Confirm" button of form triggers "close" on dialog because of [method="dialog"]
+        els.minerDialog.addEventListener("close", () => {
+          els.minerDialog.removeEventListener("close", () => {});
+          if (els.minerLocations.value !== "default") {
+            enableScroll();
+            storeMinerInfo(minerData.data[els.minerLocations.value]);
+            resolve(miner.id);
+          } else {
+            els.minerDialog.removeAttribute("open");
+            console.log("Miner not selected");
+            getId(minerData);
+          }
+        });
+      });
+    }
+  } else {
+    storeMinerInfo(minerData.data[0]);
+    return Promise.resolve(miner.id);
+  }
 }
 
 /**
@@ -769,15 +747,59 @@ async function getRewards(minerId) {
   }
   params.diff = dateDiff(params.eDate, params.sDate, true);
   els.timeInterval.innerHTML = params.diff;
-  if (els.customCheck.checked || els.periodSelect.value === "max") {
-    els.timeInterval.style.visibility = "visible";
-  }
   const epochQuery = `min_time=${params.sDate}.000Z&max_time=${params.eDate}.000Z`;
   const rewardsQuery = `hotspots/${minerId}/rewards/sum?${epochQuery}`;
   const rewardsURL = `${baseURL}/${rewardsQuery}`;
   await checkPrice();
-  const rewards = await fetch(rewardsURL).then(getResponse);
-  return rewards;
+  const rewards = await fetch(rewardsURL)
+    .then(getResponse)
+    .catch((err) => Promise.reject(err));
+  return Promise.resolve(rewards);
+}
+
+/**
+ *
+ * @param data
+ * @example
+ */
+function showRewards(data) {
+  rewards.hnt = data.data.total;
+  rewards.hntDay = rewards.hnt / params.unit;
+  rewards.hntHour = rewards.hntDay / 24;
+  els.rewards.innerHTML = rewards.hnt.toFixed(3);
+  els.rewardsDay.innerHTML = rewards.hntDay.toFixed(3);
+  els.rewardsHour.innerHTML = rewards.hntHour.toFixed(3);
+  rewards.fiat = rewards.hnt * stats.fiatPrice;
+  rewards.fiatDay = rewards.hntDay * stats.fiatPrice;
+  rewards.fiatHour = rewards.hntHour * stats.fiatPrice;
+  els.rewardsFiatLbl.innerHTML = params.fiatCurrency;
+  els.rewardsFiat.innerHTML = rewards.fiat.toFixed(2);
+  els.rewardsFiatDay.innerHTML = rewards.fiatDay.toFixed(2);
+  els.rewardsFiatHour.innerHTML = rewards.fiatHour.toFixed(2);
+  console.log("Rewards:");
+  console.table(rewards);
+}
+
+function handleError(err) {
+  console.log(`Error: ${err.message}`);
+  switch (err.message) {
+    case "NetworkError when attempting to fetch resource.":
+      console.log("No internet connection.");
+      break;
+    case "Not Found":
+      console.log("Wrong URL API.");
+      break;
+    case "Miner not found":
+      els.noMinerFound.classList.remove("hide");
+      els.noMinerFound.style.opacity = 1;
+      setTimeout(() => {
+        els.noMinerFound.style.opacity = 0;
+        els.noMinerFound.classList.add("hide");
+      }, 4000);
+      break;
+    default:
+      break;
+  }
 }
 
 /**
@@ -789,30 +811,27 @@ async function getRewards(minerId) {
  * @see {@link https://gist.github.com/WebReflection/6076a40777b65c397b2b9b97247520f0}
  * @example
  */
-async function scriptFlow() {
-  await findMiner()
-    .then(getId)
-    .catch((error) => {
-      if (error.message === "Miner not found") {
-        toggleStyle();
-        throw Error(error.message);
-      } else {
-        console.log("Request failed )':");
-        console.log(error.message);
-        console.log("Trying again...");
-        setTimeout(() => {
-          scriptFlow();
-        }, 2000);
-      }
-    })
-    .then(getRewards)
-    .then(showRewards)
-    .catch((error) => {
-      console.log("Request failed )':");
-      console.log(error);
-      console.log("Trying again...");
-      setTimeout(() => {
-        getRewards();
-      }, 2000);
-    });
+async function getMinerInfo() {
+  // show selected parameters
+  console.log("Parameters selected:");
+  console.table(parameters);
+
+  // hide results in case not hidden already
+  hideResults();
+  // toggle "Check/Checking..." loading style
+  toggleStyle();
+
+  const id = await getMinerId().catch((error) => handleError(error));
+
+  if (id) {
+    const rewards = await getRewards(id).catch((error) => handleError(error));
+    // show rewards if found
+    if (rewards) {
+      showRewards(rewards);
+      displayResults();
+    }
+  }
+
+  // toggle "Check/Checking..." loading style
+  toggleStyle();
 }

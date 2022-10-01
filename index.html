@@ -137,13 +137,12 @@
         </tr>
       </table>
     </details>
-
     <form id="check-form" autocomplete="on">
       <label id="miner-id-label" for="miner-name">Miner name</label>
       <span class="tooltip">
-        <span id="no-miner-found" class="errortiptext">No miner was found with this name</span>
+        <span id="no-miner-found" class="errortiptext hide">No miner was found with this name</span>
         <input id="miner-name" type="text" placeholder="e.g. Happy Banana Woodpecker" maxlength="50"
-          pattern="^[a-zA-Z]+( [a-zA-Z]+){2}$" autocomplete="on" autofocus required>
+          pattern="^\s*[a-zA-Z]+( [a-zA-Z]+){2}\s*$" autocomplete="on" autofocus required>
       </span>
       <div>
         <label id="mining-time" for="period-select">
@@ -171,7 +170,7 @@
       </div>
       <div class="left-align">
         <input id="custom-check" type="checkbox" autocomplete="off">
-        <label id="custom-label" for="custom-check">Custom period: <span id="time-interval" class="hide">1
+        <label id="custom-label" for="custom-check">Custom period: <span id="time-interval">1
             day</span></label>
       </div>
       <div id="start-block">
@@ -227,18 +226,22 @@
             <td title="Miner's address" id="id-icon"><i class="fa-solid fa-at"></i></td>
             <td><a id="miner-id" title="See the miner on the Helium explorer" target="_blank" rel="noopener"></a>
             </td>
-            <td id="copy-clip" class="tooltip">
-              <span class="tooltiptext" id="miner-tooltip">Copy miner's address to clipboard</span>
-              <i class="fa-solid fa-clipboard-list"></i>
+            <td id="copy-clip">
+              <span class="tooltip">
+                <span class="tooltiptext" id="miner-tooltip">Copy miner's address to clipboard</span>
+                <i class="fa-solid fa-clipboard-list"></i>
+              </span>
             </td>
           </tr>
           <tr>
             <td title="Owner's address" id="icon-owner"><i class="fa-solid fa-user"></i></td>
             <td><a id="owner-id" title="See the owner on the Helium explorer" target="_blank" rel="noopener"></a>
             </td>
-            <td id="copy-clip-owner" class="tooltip">
-              <span class="tooltiptext" id="owner-tooltip">Copy owner's address to clipboard</span>
-              <i class="fa-solid fa-clipboard-list"></i>
+            <td id="copy-clip-owner">
+              <span class="tooltip">
+                <span class="tooltiptext" id="owner-tooltip">Copy owner's address to clipboard</span>
+                <i class="fa-solid fa-clipboard-list"></i>
+              </span>
             </td>
           </tr>
           <tr title="Added date">
@@ -336,9 +339,9 @@
       <p><label>Location:
           <select id="miner-locations">
             <!-- automatically generated options
-                            <option value="default">Choose…</option>
-                            <option>City (Country)</option>
-                          -->
+            <option value="default">Choose…</option>
+            <option>City (Country)</option>
+            -->
           </select>
         </label></p>
       <div>
@@ -346,7 +349,6 @@
       </div>
     </form>
   </dialog>
-
 </body>
 
 </html>

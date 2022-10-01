@@ -245,7 +245,6 @@ input {
 .tooltiptext,
 .errortiptext {
   font-size: 0.75rem;
-  visibility: hidden;
   width: 100px;
   background-color: #555;
   color: #fff;
