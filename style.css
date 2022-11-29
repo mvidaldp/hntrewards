@@ -21,7 +21,7 @@ body {
   text-shadow: -0.5px -0.5px 0 #fff, 0.5px -0.5px 0 #fff, -0.5px 0.5px 0 #fff;
   background: #ffffff;
   background-attachment: fixed;
-  background-image: url("background.svg");
+  background-image: url("svg/background.svg");
 }
 
 body.dark {
@@ -30,7 +30,7 @@ body.dark {
     1px 1px 0 #000;
   background: #10192d;
   background-attachment: fixed;
-  background-image: url("background.svg");
+  background-image: url("svg/background.svg");
 }
 
 p {
@@ -330,9 +330,23 @@ input {
 }
 
 #qrcode {
-  background: url("QRcode.svg");
+  background: url("svg/QRcode.svg");
   width: 100px;
   height: 100px;
+}
+
+.hexico-black {
+  background: url("svg/hex-icon-black.svg");
+  background-repeat: no-repeat;
+  width: 13.33px;
+  height: 16px;
+}
+
+.hexico-white {
+  background: url("svg/hex-icon-white.svg");
+  background-repeat: no-repeat;
+  width: 13.33px;
+  height: 16px;
 }
 
 /* collapsible */
@@ -418,6 +432,10 @@ br {
 
 .flex {
   display: flex;
+}
+
+.flex-inline {
+  display: inline-flex;
 }
 
 .flex-col {

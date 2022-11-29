@@ -3,7 +3,20 @@
  * @author m4573Rm4c0 <soacmaster@proton.me>
  */
 // TODO:
+// - Add text appearing/loading comming from the side for about (maybe even main content)
+// - Fix checking if API is up vs internet. Current API down error:
+// Blockchain stats error:
+// Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://api.helium.io/v1/stats.
+// (Reason: CORS header ‘Access-Control-Allow-Origin’ missing). Status code: 503.
+// Error: NetworkError when attempting to fetch resource.
+// No internet connection.
+// Miner query error:
+// Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://api.helium.io/v1/hotspots/name/funny-admiral-gerbil.
+// (Reason: CORS header ‘Access-Control-Allow-Origin’ missing). Status code: 503.
+// Error: NetworkError when attempting to fetch resource.
+// No internet connection.
 // - Make time-interval calculation update at each date change, like the date inputs
+// - First update parameters, then make query
 // - Update period, unit and diff parameters before showing parameters selected (show after parameter bla changed: list)
 // - Change alert for tooltip about wrong period (smaller than 1 hour) selected
 // - Prevent querying (disable check button) if wrong period
@@ -12,14 +25,19 @@
 // - Time queries/steps/functions, show total
 // - New features:
 //  - Show Witnesses and Witnessed last 5 days (interval possible)
-//  - Show challenges
-//  - Show total hostspots around a certain radius (Km) (allow to pick radius/hex)
+//  https://api.helium.io/v1/hotspots/112965GzcuDzv5ycMsPXS4JHRruQnmkEHxzohspHNjX6FXWgLr5P/witnesses
+//  https://api.helium.io/v1/hotspots/112965GzcuDzv5ycMsPXS4JHRruQnmkEHxzohspHNjX6FXWgLr5P/witnessed
+//  - Show challenges (using selected dates or predefined time window, includes cursor)
+//  https://api.helium.io/v1/hotspots/:address/challenges
+//  - Show total hostspots around a certain radius (Km) (allow to pick radius distance)
+//  https://api.helium.io/v1/hotspots/location/distance?lat=38.12129445739087&lon=-122.52885074963571&distance=1000 (distance in meters)
 //  - Show AVG challenges / miner last 24 hours
 //  - Show AVG rewards whole network (total miners / rewards)
+//  - Allow to input and query multiple miners at the same time
+//  - Allow to click on owner's to query all miners from same owner
 // - Code cleanness:
 //  - document functions
 //  - Simplify and organize functions and logic on main script
-//  - Check when synchronous code is needed and when not
 // - Also important:
 //  - Improve SEO stuff (check recommendations from online analysis)
 //  - Share it in reddit, discord, telegram, and medium (create post)
@@ -217,6 +235,10 @@ if (
   els.check.classList.toggle("dark");
   els.fiatSelect.classList.toggle("dark");
   els.periodSelect.classList.toggle("dark");
+  els.hexicoLeft.classList.remove("hexico-black");
+  els.hexicoLeft.classList.add("hexico-white");
+  els.hexicoRight.classList.remove("hexico-black");
+  els.hexicoRight.classList.add("hexico-white");
 }
 
 // event listeners
@@ -243,6 +265,12 @@ els.themeToggler.addEventListener("click", () => {
   els.check.classList.toggle("dark");
   els.fiatSelect.classList.toggle("dark");
   els.periodSelect.classList.toggle("dark");
+  const oldHex = els.hexicoLeft.classList.contains("hexico-black")
+  ? "hexico-black"
+  : "hexico-white";
+  const newHex = oldHex === "hexico-black" ? "hexico-white" : "hexico-black";
+  els.hexicoLeft.classList.replace(oldHex, newHex);
+  els.hexicoRight.classList.replace(oldHex, newHex);
 });
 
 document.addEventListener("scroll", () => scrollFunction());
@@ -342,7 +370,7 @@ els.customCheck.addEventListener("change", () => {
   els.endBlock.classList.toggle("colored");
 });
 
-els.checkForm.addEventListener("submit", () => getMinerInfo());
+els.checkForm.addEventListener("submit", () => getMinerData());
 
 // update max date value for datetime-local input elements (start and end) in
 // case the page wasn't updated in a while (current date changed)
@@ -621,6 +649,8 @@ function storeMinerInfo(minerData) {
   miner.lng = minerData.lng;
   miner.scale = minerData.reward_scale;
   miner.online = minerData.status.online === "online";
+  miner.hex = minerData.location_hex;
+  miner.hexMiners = minerData.hexMiners;
   if (miner.online) {
     els.infoThLeft.style.color = "green";
     els.infoThRight.style.color = "green";
@@ -657,6 +687,8 @@ function storeMinerInfo(minerData) {
   els.location.setAttribute("href", `${gMapsURL}${miner.lat},${miner.lng}`);
   els.ownerId.innerHTML = hiddenOwner;
   els.scale.innerHTML = miner.scale;
+  els.hexagon.setAttribute("href", `${explorerURL}/iot/hex/${miner.hex}`);
+  els.hexagon.innerHTML = miner.hexMiners;
   console.log("Miner found:");
   console.table(miner);
 }
@@ -665,7 +697,7 @@ function storeMinerInfo(minerData) {
  *
  * @example
  */
-async function getMinerId() {
+async function getMinerInfo() {
   // parse miner name "First Second Third" to "first-second-third" for API request
   if (els.minerName.value.trim() !== els.minerName.value) {
     els.minerName.value = els.minerName.value.trim();
@@ -706,11 +738,13 @@ async function getMinerId() {
       disableScroll();
       return new Promise((resolve) => {
         // "Confirm" button of form triggers "close" on dialog because of [method="dialog"]
-        els.minerDialog.addEventListener("close", () => {
+        els.minerDialog.addEventListener("close", async () => {
           els.minerDialog.removeEventListener("close", () => {});
           if (els.minerLocations.value !== "default") {
             enableScroll();
-            storeMinerInfo(minerData.data[els.minerLocations.value]);
+            const selected = els.minerLocations.value;
+            minerData.data[selected].hexMiners = await getMinersInHex(minerData.data[selected].location_hex);
+            storeMinerInfo(minerData.data[selected]);
             resolve(miner.id);
           } else {
             els.minerDialog.removeAttribute("open");
@@ -721,10 +755,28 @@ async function getMinerId() {
       });
     }
   } else {
+    minerData.data[0].hexMiners = await getMinersInHex(minerData.data[0].location_hex);
     storeMinerInfo(minerData.data[0]);
     return Promise.resolve(miner.id);
   }
 }
+
+/**
+ *
+ * @example
+ */
+ async function getMinersInHex(hexId) {
+  // build URL
+  const hexQuery = `hotspots/hex/${hexId}`;
+  const hexURL = `${baseURL}/${hexQuery}`;
+
+  // API request
+  const hexData = await fetch(hexURL)
+    .then(getResponse)
+    .catch((error) => Promise.reject(error));
+
+  return hexData.data.length;
+ }
 
 /**
  *
@@ -811,7 +863,7 @@ function handleError(err) {
  * @see {@link https://gist.github.com/WebReflection/6076a40777b65c397b2b9b97247520f0}
  * @example
  */
-async function getMinerInfo() {
+async function getMinerData() {
   // show selected parameters
   console.log("Parameters selected:");
   console.table(parameters);
@@ -821,7 +873,7 @@ async function getMinerInfo() {
   // toggle "Check/Checking..." loading style
   toggleStyle();
 
-  const id = await getMinerId().catch((error) => handleError(error));
+  const id = await getMinerInfo().catch((error) => handleError(error));
 
   if (id) {
     const rewards = await getRewards(id).catch((error) => handleError(error));
