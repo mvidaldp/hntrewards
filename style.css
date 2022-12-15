@@ -133,6 +133,10 @@ a:focus {
   margin: 0 auto;
 }
 
+#api-urls {
+  font-size: 1rem;
+}
+
 #miner-name {
   color: #6b70ff;
   width: 25ch;

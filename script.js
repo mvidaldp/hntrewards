@@ -106,6 +106,8 @@ for (const el of elements) {
   els[newIden] = el;
 }
 
+const queries = {}
+
 // initialize start and end datetimes
 
 Object.assign(Date.prototype, {
@@ -405,6 +407,12 @@ els.minerDetails.addEventListener("toggle", () => {
   els.minerIcoLeft.classList.replace(first, second);
   els.minerIcoRight.classList.replace(first, second);
 });
+els.statsDetails.addEventListener("toggle", () => {
+  const first = els.urlsDetails.hasAttribute("open") ? "fa-plus" : "fa-minus";
+  const second = first === "fa-minus" ? "fa-plus" : "fa-minus";
+  els.queriesIcoLeft.classList.replace(first, second);
+  els.queriesIcoRight.classList.replace(first, second);
+});
 
 // BLOCK SCROLLING
 
@@ -570,6 +578,7 @@ function numToShort(number) {
  */
 async function updateTotalRewards() {
   const queryURL = `${baseURL}/rewards/sum?min_time=-1%20day`;
+  queries["Blockchain rewards last 24 hours"] = queryURL
   const result = await fetch(queryURL)
     .then(getResponse)
     .then((resp) => {
@@ -588,6 +597,7 @@ async function updateTotalRewards() {
  */
 async function updateStats() {
   const queryURL = `${baseURL}/stats`;
+  queries["Blockchain stats"] = queryURL
   const result = await fetch(queryURL)
     .then(getResponse)
     .then((resp) => {
@@ -636,6 +646,7 @@ async function checkPrice() {
   const currency = els.fiatSelect.options[els.fiatSelect.selectedIndex].text;
   if (currency !== params.fiatCurrency) params.fiatCurrency = currency;
   const queryURL = `${cgQueryURL}${params.fiatCurrency.toLowerCase()}`;
+  queries["Fiat price"] = queryURL
   await fetch(queryURL).then(getResponse).then(updatePrice);
 }
 
@@ -708,6 +719,7 @@ async function getMinerInfo() {
   // build URL
   const idQuery = `hotspots/name/${name}`;
   const idURL = `${baseURL}/${idQuery}`;
+  queries["Miner info"] = idURL
 
   // API request
   const minerData = await fetch(idURL)
@@ -769,6 +781,7 @@ async function getMinerInfo() {
   // build URL
   const hexQuery = `hotspots/hex/${hexId}`;
   const hexURL = `${baseURL}/${hexQuery}`;
+  queries["Miners in hexagon"] = hexURL
 
   // API request
   const hexData = await fetch(hexURL)
@@ -802,6 +815,7 @@ async function getRewards(minerId) {
   const epochQuery = `min_time=${params.sDate}.000Z&max_time=${params.eDate}.000Z`;
   const rewardsQuery = `hotspots/${minerId}/rewards/sum?${epochQuery}`;
   const rewardsURL = `${baseURL}/${rewardsQuery}`;
+  queries["Miner rewards"] = rewardsURL
   await checkPrice();
   const rewards = await fetch(rewardsURL)
     .then(getResponse)
@@ -881,6 +895,13 @@ async function getMinerData() {
     if (rewards) {
       showRewards(rewards);
       displayResults();
+      let add_urls = '';
+      for (const el in queries) {
+        add_urls += `<a href="${queries[el]}" target="_blank" rel="noopener">${el}</a><br>`
+      }
+      // remove last <br>
+      add_urls = add_urls.slice(0, -4)
+      els.apiUrls.innerHTML = add_urls;
     }
   }
 
