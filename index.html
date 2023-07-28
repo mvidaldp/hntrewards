@@ -47,7 +47,8 @@
           class="accent">Checker</span>
       </h3>
     </h1>
-    <div title="Donate HNT to keep this app alive (cover costs, keep it ad and annoyances free, etc.)">
+    <div
+      title="Donate HNT, MOBILE, IOT, DC, or SOL to keep this app alive (cover costs, keep it ad and annoyances free, etc.)">
       <div class="row flex">
         <div class="flex-col">
           <div class="fa-solid fa-circle-dollar-to-slot top-dollar"></div>
@@ -57,7 +58,7 @@
         <div>
           <div class="center-align"><b>DONATE</b></div>
           <div class="QRcode-frame tooltip">
-            <span class="tooltiptext">Scan this with the Helium app to donate HNT</span>
+            <span class="tooltiptext">Donate to this address using the Helium Wallet app</span>
             <div id="qrcode"></div>
           </div>
           <div class="center-align"><b>PLEASE</b></div>
@@ -148,13 +149,13 @@
         <label id="mining-time" for="period-select">
           <i class="flip" class="fa-solid fa-coins"></i>Mined
           last</label>
-        <select id="period-select" dir="rtl" autocomplete="off">
+        <select id="period-select" dir="rtl" autocomplete="off" disabled>
           <option value="1h">1h</option>
           <option value="2h">2h</option>
           <option value="3h">3h</option>
           <option value="6h">6h</option>
           <option value="12h">12h</option>
-          <option value="24h" selected>24h</option>
+          <option value="24h">24h</option>
           <option value="2d">2d</option>
           <option value="3d">3d</option>
           <option value="7d">7d</option>
@@ -165,7 +166,7 @@
           <option value="180d">180d</option>
           <option value="1y">1y</option>
           <option value="2y">2y</option>
-          <option value="max">max</option>
+          <option value="max" selected>max</option>
         </select>
       </div>
       <div class="left-align">
@@ -176,7 +177,7 @@
       <div id="start-block">
         <label class="dates-icons" title="Start datetime" for="date-start"><i
             class="fa-solid fa-plane-departure"></i></label>
-        <input title="Start datetime" id="date-start" type="datetime-local" step="any" class="default-font" required
+        <input title="Start datetime" id="date-start" type="datetime-local" step="1" class="default-font" required
           disabled>
         <label class="dates-icons mirrored" title="Start datetime" for="date-start"><i
             class="fa-solid fa-plane-departure"></i></label>
@@ -184,8 +185,7 @@
       <div id="end-block">
         <label class="dates-icons" title=" End datetime" for="date-end"><i
             class="fa-solid fa-plane-arrival"></i></label>
-        <input title="End datetime" id="date-end" type="datetime-local" step="any" class="default-font" required
-          disabled>
+        <input title="End datetime" id="date-end" type="datetime-local" step="1" class="default-font" required disabled>
         <label class="dates-icons mirrored" title=" End datetime" for="date-end"><i
             class="fa-solid fa-plane-arrival"></i></label>
       </div>
@@ -250,9 +250,14 @@
             <td><i class="fa-solid fa-scale-balanced"></i></td>
           </tr>
           <tr title="Hexagon miners">
-            <td class="flex-inline"><div id="hexico-left" class="hexico-black"></div></td>
-            <td><a title="See the hexagon on the Helium explorer" target="_blank" id="hexagon" href="#" rel="noopener"></a></td>
-            <td class="flex-inline"><div id="hexico-right" class="hexico-black"></div></td>
+            <td class="flex-inline">
+              <div id="hexico-left" class="hexico-black"></div>
+            </td>
+            <td><a title="See the hexagon on the Helium explorer" target="_blank" id="hexagon" href="#"
+                rel="noopener"></a></td>
+            <td class="flex-inline">
+              <div id="hexico-right" class="hexico-black"></div>
+            </td>
           </tr>
           <tr title="Location">
             <td><i class="fa-solid fa-location-dot"></i></td>
@@ -281,7 +286,8 @@
     <h3 title="About this app">
       About <span title="HNT" class="accent">Helium</span> Rewards <span class="accent">Checker</span>
     </h3>
-    <div title="Donate HNT to keep this app alive (cover costs, keep it ad and annoyances free, etc.)">
+    <div
+      title="Donate HNT, MOBILE, IOT, DC, or SOL to keep this app alive (cover costs, keep it ad and annoyances free, etc.)">
       <div class="row flex">
         <div class="flex-col">
           <div class="fa-solid fa-circle-dollar-to-slot top-dollar"></div>
@@ -291,7 +297,7 @@
         <div>
           <div class="center-align"><b>PLEASE</b></div>
           <div class="QRcode-frame tooltip">
-            <span class="tooltiptext">Scan this with the Helium app to donate HNT</span>
+            <span class="tooltiptext">Donate to this address using the Helium Wallet app</span>
             <div id="qrcode"></div>
           </div>
           <div class="center-align"><b>DONATE</b></div>
@@ -304,44 +310,70 @@
     </div>
     <p>
       <span title=" HNT" class="accent">Helium</span> Rewards <span class="accent">Checker</span>
-      is a Helium community app built to check the HNT rewards of any miner of the <a target="_blank" rel="noopener"
+      was a Helium community app built to check the HNT rewards of any miner of the <a target="_blank" rel="noopener"
         href="https://www.helium.com/">Helium Blockchain</a> using a predefined time period
-      or a custom one.
-      It
-      also allows you to see the value of the rewards in different fiat currencies and other relevant
-      information (total rewards since a miner was added, date it was added, average rewards per day /
-      hour within the selected period, miner's and owner's address, location, etc.).
-    <p>Another reason that brought me to develop this tool is to provide realtime information about the
+      or a custom one. This is written in the past tense since according to <a target="_blank" rel="noopener"
+        href="https://docs.helium.com/devblog/2023/07/19/legacy-api-shutdown/">this Helium's blog post</a>, from the
+      28th of July of 2023, the legacy API will be shut down. So chances are that if you are reading this, this app
+      does not work anymore. But anyway, feel free to check the demos and the source code on its repo:
+      <a target="_blank" rel="noopener"
+        href="https://github.com/mvidaldp/hntrewards">https://github.com/mvidaldp/hntrewards</a>
+    </p>
+    <p>
+      Also, unfortunalety for all Helium community developers like me, on the 18th of April 2023, <a target="_blank"
+        rel="noopener" href="https://docs.helium.com/solana/migration/">Helium migrated to the Solana
+        blockchain</a>, stopped rewarding HNT and started rewarding IOT, and also changed the former open and free <a
+        target="_blank" rel="noopener" href="https://docs.helium.com/blockchain/api">Helium's Blockchain API</a> for a
+      new one using <a target="_blank" rel="noopener" href="https://aws.amazon.com/">AWS</a>, so not for free anymore.
+      <br>
+      Until now I do not consider updating this web to query the IOT rewards since using AWS is not free. However, <a
+        target="_blank" rel="noopener" href=" https://docs.helium.com/oracles/oracle-data/ ">Helium is planning to
+        provide a decentralized option for data access in the future</a>.
+      And they are also planning to provide a CSV archive of the historical data. Hence, in the future, I could even
+      consider restoring the functionality of
+      this app and enhancing it including the possibility to query the after-migration data.
+    </p>
+    <p>
+      <span title=" HNT" class="accent">Helium</span> Rewards <span class="accent">Checker</span> allowed you to see the
+      value of the rewards in different fiat currencies and other relevant
+      information: miner's and owner's address, transmit scale, total miners in hexagon, location, date it was added,
+      total rewards since a miner was added, average rewards per day/hour within the selected period, etc.
+    <p>Another reason that brought me to develop this tool is to provide real-time and more customized or user-specified
+      information about the
       HNT
       rewards. The <a target="_blank" rel="noopener" href="https://explorer.helium.com/">Helium
         Explorer</a> and the
-      Helium Hotspot App (to this
-      date) are
-      not only quite slow. They also do not give you realtime information (at least not the most
+      Helium Hotspot App were
+      not only quite slow but also not flexible to query rewards for specific periods of time. They also did not give
+      you real-time information (at least not the most
       up-to-date from its blockchain).
     </p>
     <p>
-      Essentially this webapp uses <a target="_blank" rel="noopener"
-        href="https://docs.helium.com/api/blockchain/introduction/">Helium's Blockchain API</a> to
+      Essentially this web app used <a target="_blank" rel="noopener"
+        href="https://docs.helium.com/blockchain/api">Helium's Blockchain API</a> to
       retrieve the
-      desired information directly from the <a target="_blank" rel="noopener" href="https://www.helium.com/">Helium's
+      desired information directly from <a target="_blank" rel="noopener" href="https://www.helium.com/">Helium's
         Blockchain</a>,
       combined with the current <a target="_blank" rel="noopener" href="https://www.coingecko.com/en/coins/helium">HNT
         fiat
         value</a> via <a target="_blank" rel="noopener"
         href="https://www.coingecko.com/en/api/documentation">Coingecko's
-        API</a>. In case you have any suggestions or find any bugs, please write me at <span
+        API</a>. In case you have any suggestions or found any bugs, please write me at <span
         class="accent">soacmaster[at]proton.me</span>
     </p>
     <p>
-      Last but not least, keep in mind that this app is free (and it wants to stay as such: no ads, no
-      annoyances). Currently this site is having around 1000 unique visits a month. If on average every
+      Last but not least, this app was free (and it wanted to stay as such: no ads, no
+      annoyances). That was the reason I set the donation QR codes here. And I would like to thank all the donors for
+      supporting it. Donating is still possible via the Helium Wallet app, by adding a new contact using the QR code of
+      the Solana address and then selecting the contact for sending tokens (HNT, MOBILE, IOT, DC, or SOL). Donating via
+      Solana app should work as well.
+      <!-- The site was having around 1000 unique visits a month. If on average every
       user would donate at least 0.1 HNT, I could not only cover the hosting, domain, developing and
       mantaining
       costs, but it would also allow me to improve it a lot and develop an Android and iOS app out of
+      it. -->
+      In a nutshell, if you think this app was and could be again useful, please use the QR code and donate to support
       it.
-      So, if you think this app is useful, please use the QR code to
-      donate HNT to support it.
     </p>
   </div>
   <!-- Simple modal dialog containing a form -->

@@ -3,7 +3,8 @@
  * @author m4573Rm4c0 <soacmaster@proton.me>
  */
 // TODO:
-// - Add text appearing/loading comming from the side for about (maybe even main content)
+// - Make parallel API requests when possible to speed it up
+// - Figure out why sometimes check produces nothing  (check console)
 // - Fix checking if API is up vs internet. Current API down error:
 // Blockchain stats error:
 // Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at https://api.helium.io/v1/stats.
@@ -38,11 +39,6 @@
 // - Code cleanness:
 //  - document functions
 //  - Simplify and organize functions and logic on main script
-// - Also important:
-//  - Improve SEO stuff (check recommendations from online analysis)
-//  - Share it in reddit, discord, telegram, and medium (create post)
-//  - Ask Uri about how to improve design/UI
-//  - add helium miners/retailers or crypto ads
 // - Extra:
 //  - Show graph/sparkline of selected period: https://www.chartjs.org/docs/latest/
 //  - Use proxy/handler listening for changes to update DOM elements
@@ -106,7 +102,7 @@ for (const el of elements) {
   els[newIden] = el;
 }
 
-const queries = {}
+const queries = {};
 
 // initialize start and end datetimes
 
@@ -127,12 +123,29 @@ Object.assign(Date.prototype, {
   },
 });
 
+// Helium Blockchain launch datetime in PST (July 29, 2019, 9:00 AM PST)
+const launchTime = new Date("2019-07-29T09:00:00-07:00");
+// Helium Blockchain Solana migration datetime in PST (April 18, 2023, 9:00 AM PST)
+const migrationTime = new Date("2023-04-18T09:00:00-07:00");
+// Get the local time zone offset in minutes
+const localOffsetInMinutes = new Date().getTimezoneOffset();
+// Convert the offset to milliseconds and add it to the PST time
+const localLaunchTime = new Date(
+  launchTime.getTime() + localOffsetInMinutes * 60 * 1000
+);
+const localMigrationTime = new Date(
+  migrationTime.getTime() + localOffsetInMinutes * 60 * 1000
+);
+// Format the local time as a string
+const formatLocalLaunchTime = localLaunchTime.toISOString().split(".")[0]; // Format: "YYYY-MM-DDTHH:mm"
+const formatLocalMigrationTime = localMigrationTime.toISOString().split(".")[0]; // Format: "YYYY-MM-DDTHH:mm"
+
 els.dateStart.value = parameters.sDate.toDatetimeLocal().split(".")[0];
 els.dateEnd.value = parameters.eDate.toDatetimeLocal().split(".")[0];
-els.dateStart.min = "2019-08-01T00:00:01";
+els.dateStart.min = formatLocalLaunchTime;
 els.dateEnd.min = els.dateStart.min;
 els.dateStart.max = els.dateEnd.value.split("T")[0];
-els.dateEnd.max = els.dateStart.max;
+els.dateEnd.max = localMigrationTime;
 parameters.eDate = parameters.eDate.toISOString().split(".")[0];
 parameters.sDate = parameters.sDate.toISOString().split(".")[0];
 
@@ -268,8 +281,8 @@ els.themeToggler.addEventListener("click", () => {
   els.fiatSelect.classList.toggle("dark");
   els.periodSelect.classList.toggle("dark");
   const oldHex = els.hexicoLeft.classList.contains("hexico-black")
-  ? "hexico-black"
-  : "hexico-white";
+    ? "hexico-black"
+    : "hexico-white";
   const newHex = oldHex === "hexico-black" ? "hexico-white" : "hexico-black";
   els.hexicoLeft.classList.replace(oldHex, newHex);
   els.hexicoRight.classList.replace(oldHex, newHex);
@@ -407,7 +420,7 @@ els.minerDetails.addEventListener("toggle", () => {
   els.minerIcoLeft.classList.replace(first, second);
   els.minerIcoRight.classList.replace(first, second);
 });
-els.statsDetails.addEventListener("toggle", () => {
+els.urlsDetails.addEventListener("toggle", () => {
   const first = els.urlsDetails.hasAttribute("open") ? "fa-plus" : "fa-minus";
   const second = first === "fa-minus" ? "fa-plus" : "fa-minus";
   els.queriesIcoLeft.classList.replace(first, second);
@@ -469,8 +482,8 @@ function enableScroll() {
  */
 function updatePeriod() {
   // update current time
-  const end = new Date();
-  let begin = new Date();
+  const end = localMigrationTime;
+  let begin = localLaunchTime;
   let diff;
 
   const selected = els.periodSelect.value;
@@ -501,7 +514,7 @@ function updatePeriod() {
       begin.setFullYear(begin.getFullYear() - diff);
       break;
     case "max":
-      begin = new Date("2019-08-01T00:00:01.00Z"); // Helium's beginning
+      begin = localLaunchTime; // Helium's beginning
       break;
     default:
       break;
@@ -578,7 +591,7 @@ function numToShort(number) {
  */
 async function updateTotalRewards() {
   const queryURL = `${baseURL}/rewards/sum?min_time=-1%20day`;
-  queries["Blockchain rewards last 24 hours"] = queryURL
+  queries["Blockchain rewards last 24 hours"] = queryURL;
   const result = await fetch(queryURL)
     .then(getResponse)
     .then((resp) => {
@@ -597,7 +610,7 @@ async function updateTotalRewards() {
  */
 async function updateStats() {
   const queryURL = `${baseURL}/stats`;
-  queries["Blockchain stats"] = queryURL
+  queries["Blockchain stats"] = queryURL;
   const result = await fetch(queryURL)
     .then(getResponse)
     .then((resp) => {
@@ -646,7 +659,7 @@ async function checkPrice() {
   const currency = els.fiatSelect.options[els.fiatSelect.selectedIndex].text;
   if (currency !== params.fiatCurrency) params.fiatCurrency = currency;
   const queryURL = `${cgQueryURL}${params.fiatCurrency.toLowerCase()}`;
-  queries["Fiat price"] = queryURL
+  queries["Fiat price"] = queryURL;
   await fetch(queryURL).then(getResponse).then(updatePrice);
 }
 
@@ -719,7 +732,7 @@ async function getMinerInfo() {
   // build URL
   const idQuery = `hotspots/name/${name}`;
   const idURL = `${baseURL}/${idQuery}`;
-  queries["Miner info"] = idURL
+  queries["Miner info"] = idURL;
 
   // API request
   const minerData = await fetch(idURL)
@@ -755,7 +768,9 @@ async function getMinerInfo() {
           if (els.minerLocations.value !== "default") {
             enableScroll();
             const selected = els.minerLocations.value;
-            minerData.data[selected].hexMiners = await getMinersInHex(minerData.data[selected].location_hex);
+            minerData.data[selected].hexMiners = await getMinersInHex(
+              minerData.data[selected].location_hex
+            );
             storeMinerInfo(minerData.data[selected]);
             resolve(miner.id);
           } else {
@@ -767,7 +782,9 @@ async function getMinerInfo() {
       });
     }
   } else {
-    minerData.data[0].hexMiners = await getMinersInHex(minerData.data[0].location_hex);
+    minerData.data[0].hexMiners = await getMinersInHex(
+      minerData.data[0].location_hex
+    );
     storeMinerInfo(minerData.data[0]);
     return Promise.resolve(miner.id);
   }
@@ -777,11 +794,11 @@ async function getMinerInfo() {
  *
  * @example
  */
- async function getMinersInHex(hexId) {
+async function getMinersInHex(hexId) {
   // build URL
   const hexQuery = `hotspots/hex/${hexId}`;
   const hexURL = `${baseURL}/${hexQuery}`;
-  queries["Miners in hexagon"] = hexURL
+  queries["Miners in hexagon"] = hexURL;
 
   // API request
   const hexData = await fetch(hexURL)
@@ -789,7 +806,7 @@ async function getMinerInfo() {
     .catch((error) => Promise.reject(error));
 
   return hexData.data.length;
- }
+}
 
 /**
  *
@@ -815,7 +832,7 @@ async function getRewards(minerId) {
   const epochQuery = `min_time=${params.sDate}.000Z&max_time=${params.eDate}.000Z`;
   const rewardsQuery = `hotspots/${minerId}/rewards/sum?${epochQuery}`;
   const rewardsURL = `${baseURL}/${rewardsQuery}`;
-  queries["Miner rewards"] = rewardsURL
+  queries["Miner rewards"] = rewardsURL;
   await checkPrice();
   const rewards = await fetch(rewardsURL)
     .then(getResponse)
@@ -895,12 +912,12 @@ async function getMinerData() {
     if (rewards) {
       showRewards(rewards);
       displayResults();
-      let add_urls = '';
+      let add_urls = "";
       for (const el in queries) {
-        add_urls += `<a href="${queries[el]}" target="_blank" rel="noopener">${el}</a><br>`
+        add_urls += `<a href="${queries[el]}" target="_blank" rel="noopener">${el}</a><br>`;
       }
       // remove last <br>
-      add_urls = add_urls.slice(0, -4)
+      add_urls = add_urls.slice(0, -4);
       els.apiUrls.innerHTML = add_urls;
     }
   }
